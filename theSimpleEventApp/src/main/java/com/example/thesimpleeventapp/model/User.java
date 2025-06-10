@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Table(name = "users")
 @Data
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 public class User {
 

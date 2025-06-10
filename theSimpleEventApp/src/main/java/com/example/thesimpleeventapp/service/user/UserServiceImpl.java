@@ -1,9 +1,11 @@
 package com.example.thesimpleeventapp.service.user;
 
+import com.example.thesimpleeventapp.dto.UserRequestDTO;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
-import com.example.thesimpleeventapp.model.DTO.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.PasswordChangeRequestDTO;
+import com.example.thesimpleeventapp.dto.CreateUserDTO;
 import com.example.thesimpleeventapp.model.Role;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -28,6 +31,19 @@ public class UserServiceImpl implements UserService{
     public UserServiceImpl(UserRepository userRepository, EmailService emailService){
         this.userRepository = userRepository;
         this.emailService = emailService;
+    }
+
+    private UserRequestDTO convertToDto(User user){
+        return UserRequestDTO.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .profilePicture(user.getProfilePictureUrl())
+                .eventsCreated(user.getEventsCreated())
+                .notifications(user.getNotifications())
+                .build();
     }
 
     public String hashPassword(String password){
@@ -50,21 +66,27 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User saveUserWithDefaults(UserRequestDTO userRequestDTO) {
-        if (userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) {
-            throw new EmailAlreadyInUseException("User with email " + userRequestDTO.getEmail() + " already exists");
+    public User getUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found."));
+    }
+
+    @Override
+    public User saveUserWithDefaults(CreateUserDTO createUserDTO) {
+        if (userRepository.findByEmail(createUserDTO.getEmail()).isPresent()) {
+            throw new EmailAlreadyInUseException("User with email " + createUserDTO.getEmail() + " already exists");
         }
-        User user = new User();
-        user.setFirstName(userRequestDTO.getFirstName());
-        user.setLastName(userRequestDTO.getLastName());
-        user.setEmail(userRequestDTO.getEmail());
 
         String tempPassword = UUID.randomUUID().toString();
-        user.setPassword(tempPassword);
-        user.setRole(Role.USER);
-        user.setProfilePictureUrl("https://example.com/default-profile.png");
-        user.setEventsCreated(new ArrayList<>());
-        user.setNotifications(new ArrayList<>());
+        User user = User.builder()
+                .firstName(createUserDTO.getFirstName())
+                .lastName(createUserDTO.getLastName())
+                .email(createUserDTO.getEmail())
+                .password(tempPassword)
+                .role(Role.USER)
+                .profilePictureUrl("https://example.com/default-profile.png")
+                .eventsCreated(new ArrayList<>())
+                .notifications(new ArrayList<>())
+                .build();
 
         User savedUser = userRepository.save(user);
 
@@ -75,13 +97,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public void changePassword(
             Long userId,
-            String oldPassword,
-            String oldPasswordConfirm,
-            String newPassword) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+            PasswordChangeRequestDTO passwordDTO) {
+        User user = this.getUserById(userId);
 
-        if (Objects.equals(oldPassword, oldPasswordConfirm)){
-            String hashedPassword = hashPassword(newPassword);
+        if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())){
+            String hashedPassword = hashPassword(passwordDTO.getNewPassword());
             user.setPassword(hashedPassword);
             userRepository.save(user);
         }else {
@@ -90,13 +110,11 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found."));
+    public List<UserRequestDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override

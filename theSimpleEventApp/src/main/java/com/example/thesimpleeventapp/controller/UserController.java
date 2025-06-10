@@ -1,7 +1,8 @@
 package com.example.thesimpleeventapp.controller;
 
-import com.example.thesimpleeventapp.model.DTO.PasswordChangeRequestDTO;
-import com.example.thesimpleeventapp.model.DTO.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.PasswordChangeRequestDTO;
+import com.example.thesimpleeventapp.dto.CreateUserDTO;
+import com.example.thesimpleeventapp.dto.UserRequestDTO;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +23,18 @@ public class UserController {
     }
 
     @PostMapping("/createUser")
-    public User createUser(@RequestBody UserRequestDTO userDTO) {
+    public User createUser(@RequestBody CreateUserDTO userDTO) {
         return userService.saveUserWithDefaults(userDTO);
     }
 
     @PostMapping("/{id}/change-password")
-    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody PasswordChangeRequestDTO request){
-        userService.changePassword(id, request.getOldPassword(), request.getOldPasswordConfirm() ,request.getNewPassword());
+    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody PasswordChangeRequestDTO requestDTO){
+        userService.changePassword(id, requestDTO);
         return ResponseEntity.ok("Password changed successfully");
     }
 
     @GetMapping
-    public List<User> getAllUsers(){
+    public List<UserRequestDTO> getAllUsers(){
         return userService.getAllUsers();
     }
 

@@ -1,9 +1,9 @@
-package com.example.thesimpleeventapp.model.DTO;
+package com.example.thesimpleeventapp.dto;
 
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserRequestDTO {
+public class CreateUserDTO {
     private String firstName;
     private String lastName;
     private String email;
