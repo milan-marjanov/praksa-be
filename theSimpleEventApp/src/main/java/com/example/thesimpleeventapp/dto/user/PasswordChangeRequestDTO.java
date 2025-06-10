@@ -1,4 +1,4 @@
-package com.example.thesimpleeventapp.dto;
+package com.example.thesimpleeventapp.dto.user;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

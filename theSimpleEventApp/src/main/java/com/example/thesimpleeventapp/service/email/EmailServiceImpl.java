@@ -16,7 +16,7 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
-    public void sendUserCreationEmail(User user) {
+    public void sendUserCreationEmail(User user,String password) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Account creation");
@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService{
                 "Your account has been created.\n\n" +
                 "Here are your details:\n" +
                 "Email: " + user.getEmail() + "\n" +
-                "Temporary password: " + user.getPassword() + "\n\n" +
+                "Temporary password: " + password + "\n\n" +
                 "Please login and change your password.\n\n" +
                 "Regards,\nYour App Team");
 
