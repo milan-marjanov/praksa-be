@@ -1,4 +1,4 @@
-package com.example.thesimpleeventapp.dto;
+package com.example.thesimpleeventapp.dto.user;
 
 import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.Notification;

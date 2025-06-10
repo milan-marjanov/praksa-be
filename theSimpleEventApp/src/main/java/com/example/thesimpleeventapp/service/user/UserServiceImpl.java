@@ -1,21 +1,19 @@
 package com.example.thesimpleeventapp.service.user;
 
-import com.example.thesimpleeventapp.dto.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
+import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
-import com.example.thesimpleeventapp.dto.PasswordChangeRequestDTO;
-import com.example.thesimpleeventapp.dto.CreateUserDTO;
 import com.example.thesimpleeventapp.model.Role;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,17 +21,22 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
+
+
+    private final PasswordEncoder passwordEncoder;
+
     private final UserRepository userRepository;
     private final EmailService emailService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailService emailService){
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    private UserRequestDTO convertToDto(User user){
+    private UserRequestDTO convertToDto(User user) {
         return UserRequestDTO.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
@@ -46,24 +49,6 @@ public class UserServiceImpl implements UserService{
                 .build();
     }
 
-    public String hashPassword(String password){
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedHash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-
-            // Convert bytes to hex string
-            StringBuilder hexString = new StringBuilder(2 * encodedHash.length);
-            for (byte b : encodedHash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
     public User getUserById(Long id) {
@@ -71,7 +56,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User saveUserWithDefaults(CreateUserDTO createUserDTO) {
+    public User saveUserWithDefaults(CreateUserDto createUserDTO) {
         if (userRepository.findByEmail(createUserDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyInUseException("User with email " + createUserDTO.getEmail() + " already exists");
         }
@@ -81,7 +66,7 @@ public class UserServiceImpl implements UserService{
                 .firstName(createUserDTO.getFirstName())
                 .lastName(createUserDTO.getLastName())
                 .email(createUserDTO.getEmail())
-                .password(tempPassword)
+                .password(passwordEncoder.encode(tempPassword))
                 .role(Role.USER)
                 .profilePictureUrl("https://example.com/default-profile.png")
                 .eventsCreated(new ArrayList<>())
@@ -90,7 +75,7 @@ public class UserServiceImpl implements UserService{
 
         User savedUser = userRepository.save(user);
 
-        emailService.sendUserCreationEmail(savedUser);
+        emailService.sendUserCreationEmail(savedUser, tempPassword);
         return savedUser;
     }
 
@@ -100,13 +85,14 @@ public class UserServiceImpl implements UserService{
             PasswordChangeRequestDTO passwordDTO) {
         User user = this.getUserById(userId);
 
-        if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())){
-            String hashedPassword = hashPassword(passwordDTO.getNewPassword());
-            user.setPassword(hashedPassword);
+        if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())
+                && passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
             userRepository.save(user);
-        }else {
+        } else {
             throw new PasswordMissmatchException("Passwords don't match");
         }
+
     }
 
     @Override
