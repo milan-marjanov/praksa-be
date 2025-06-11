@@ -2,12 +2,14 @@ package com.example.thesimpleeventapp.controller;
 
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +40,13 @@ public class UserController {
     public List<UserRequestDTO> getAllUsers(){
         return userService.getAllUsers();
     }
+
+    @PutMapping("user/{id}/profile")
+    public ResponseEntity<String> updateUserProfile(@PathVariable Long id,@Validated @RequestBody UserProfileDto dto) {
+        userService.updateUserProfile(id, dto);
+        return ResponseEntity.ok("Profile updated successfully.");
+    }
+
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id){
