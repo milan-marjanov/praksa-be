@@ -1,5 +1,4 @@
 package com.example.thesimpleeventapp.security;
-
 import com.example.thesimpleeventapp.dto.auth.AuthResponse;
 import com.example.thesimpleeventapp.dto.auth.AuthRequest;
 import org.springframework.beans.factory.annotation.Autowired;
