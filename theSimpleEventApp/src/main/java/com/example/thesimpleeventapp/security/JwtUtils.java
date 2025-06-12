@@ -3,14 +3,14 @@ package com.example.thesimpleeventapp.security;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import io.jsonwebtoken.Jwts;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
@@ -18,10 +18,9 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    private final UserRepository userRepository;
-    private SecretKey Key;
-
     private static final long EXPIRATION_TIME = 86400000;
+    private final UserRepository userRepository;
+    private final SecretKey Key;
 
     public JwtUtils(UserRepository userRepository) {
         String secreteString = "1234567890098765432134235353453928573253793279572957979257959759785978593785978399879378fihhieihvihrviherreivhivhivhiehivehi";

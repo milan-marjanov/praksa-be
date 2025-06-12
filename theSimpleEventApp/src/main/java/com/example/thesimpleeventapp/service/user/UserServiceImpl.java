@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
+import com.example.thesimpleeventapp.dto.user.ProfilePictureUpdateDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
@@ -93,6 +94,15 @@ public class UserServiceImpl implements UserService {
             throw new PasswordMissmatchException("Passwords don't match");
         }
 
+    }
+
+    @Override
+    public void updateProfilePicture(Long userId, ProfilePictureUpdateDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+
+        user.setProfilePictureUrl(dto.getProfilePictureUrl());
+        userRepository.save(user);
     }
 
     @Override
