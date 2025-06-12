@@ -2,21 +2,21 @@ package com.example.thesimpleeventapp.dto.event;
 
 import com.example.thesimpleeventapp.model.RestaurantOption;
 import com.example.thesimpleeventapp.model.TimeOption;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class EventDto {
-    private Long id;
+public class UpdateEventDto {
     private String title;
     private String description;
-    private ParticipantDto creator;
-    private List<ParticipantDto> participants;
-    private List<TimeOption> timeOptions;
+    private List<Long> participantIds;
+    private List<TimeOptionDto> timeOptions;
     private List<RestaurantOption> restaurantOptions;
 }
