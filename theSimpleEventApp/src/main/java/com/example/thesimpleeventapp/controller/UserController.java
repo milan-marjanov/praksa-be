@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.controller;
 
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.UserPublicProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.service.user.UserService;
@@ -37,6 +38,12 @@ public class UserController {
     @GetMapping
     public List<UserRequestDTO> getAllUsers(){
         return userService.getAllUsers();
+    }
+
+    @GetMapping("user/{id}/public-profile")
+    public ResponseEntity<UserPublicProfileDto> getPublicProfile(@PathVariable Long id) {
+        UserPublicProfileDto profileDto = userService.getPublicProfileById(id);
+        return ResponseEntity.ok(profileDto);
     }
 
     @GetMapping("/{id}")
