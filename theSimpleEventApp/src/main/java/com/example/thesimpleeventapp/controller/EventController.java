@@ -1,8 +1,12 @@
 package com.example.thesimpleeventapp.controller;
 
+
+import com.example.thesimpleeventapp.dto.event.EventDto;
+
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+
 import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +29,11 @@ public class EventController {
         return eventService.getAllEvents();
     }
 
+
+    @PostMapping("/createEvent/{creatorId}")
+    public EventDto createEvent(@RequestBody EventDto eventDto, @PathVariable Long creatorId){
+        return eventService.createEvent(eventDto, creatorId);
+
     @PostMapping("/createEvent")
     public EventDto createEvent(@RequestBody CreateEventDto eventDto){
         return eventService.createEvent(eventDto);
@@ -33,5 +42,6 @@ public class EventController {
     @PatchMapping("/updateEvent/{eventId}")
     public EventDto updateEvent(@RequestBody UpdateEventDto updateEventDto, @PathVariable Long eventId){
         return eventService.updateEvent(updateEventDto, eventId);
+
     }
 }

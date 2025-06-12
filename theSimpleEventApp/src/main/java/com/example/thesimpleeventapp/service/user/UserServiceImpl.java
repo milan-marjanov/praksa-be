@@ -102,7 +102,8 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-    
+
+
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
