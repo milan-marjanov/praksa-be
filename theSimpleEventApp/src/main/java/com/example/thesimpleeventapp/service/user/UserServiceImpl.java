@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
+import com.example.thesimpleeventapp.dto.user.UserPublicProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
@@ -112,6 +113,25 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+
+
+
+    private UserPublicProfileDto convertToProfileDto(User user) {
+        return UserPublicProfileDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .build();
+    }
+
+
+    @Override
+    public UserPublicProfileDto getPublicProfileById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        return convertToProfileDto(user);
+    }
 
 
     @Override
