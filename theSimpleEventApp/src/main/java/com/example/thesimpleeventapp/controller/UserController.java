@@ -8,8 +8,9 @@ import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
+
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping("/user/{id}/change-password")
-    public ResponseEntity<String> changePassword(@PathVariable Long id, @RequestBody PasswordChangeRequestDTO requestDTO){
+    public ResponseEntity<String> changePassword(@PathVariable Long id,@Valid @RequestBody PasswordChangeRequestDTO requestDTO){
         userService.changePassword(id, requestDTO);
         return ResponseEntity.ok("Password changed successfully");
     }
