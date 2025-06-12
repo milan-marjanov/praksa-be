@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -44,8 +43,6 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profilePicture(user.getProfilePictureUrl())
-                .eventsCreated(user.getEventsCreated())
-                .notifications(user.getNotifications())
                 .build();
     }
 
@@ -69,8 +66,6 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(tempPassword))
                 .role(Role.USER)
                 .profilePictureUrl("https://example.com/default-profile.png")
-                .eventsCreated(new ArrayList<>())
-                .notifications(new ArrayList<>())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -102,7 +97,6 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

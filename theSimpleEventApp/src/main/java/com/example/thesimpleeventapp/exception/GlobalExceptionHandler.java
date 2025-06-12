@@ -1,5 +1,7 @@
 package com.example.thesimpleeventapp.exception;
 
+import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -8,8 +10,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.LocalDateTime;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    private ResponseEntity<ErrorResponse> buildErrorResponse(Exception ex, HttpStatus status) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                status.value(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(status).body(error);
+    }
 
     @ExceptionHandler(EmailAlreadyInUseException.class)
         public ResponseEntity<String> handleEmailAlreadyInUse(EmailAlreadyInUseException ex){
@@ -26,5 +39,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ErrorResponse> eventNotFoundException(EventNotFoundException ex){
+        return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(InvalidEventDataException.class)
+    public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex){
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
 
 }
