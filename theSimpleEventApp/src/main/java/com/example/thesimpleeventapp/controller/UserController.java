@@ -6,11 +6,10 @@ import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.service.user.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
-
 
 import java.util.List;
 
@@ -47,6 +46,13 @@ public class UserController {
     public List<UserRequestDTO> getAllUsers(){
         return userService.getAllUsers();
     }
+
+    @PutMapping("user/{id}/profile")
+    public ResponseEntity<String> updateUserProfile(@PathVariable Long id,@Valid @RequestBody UserProfileDto dto) {
+        userService.updateUserProfile(id, dto);
+        return ResponseEntity.ok("Profile updated successfully.");
+    }
+
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id){
