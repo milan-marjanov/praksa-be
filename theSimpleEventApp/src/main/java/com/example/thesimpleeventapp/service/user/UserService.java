@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.model.User;
 
@@ -12,7 +13,6 @@ public interface UserService {
     List<UserRequestDTO> getAllUsers();
     User getUserById(Long id);
     void deleteUser(Long id);
-    void changePassword(
-            Long userId,
-            PasswordChangeRequestDTO passwordDTO);
+    void changePassword(Long userId,PasswordChangeRequestDTO passwordDTO);
+    UserProfileDto getUserProfileById(Long id);
 }
