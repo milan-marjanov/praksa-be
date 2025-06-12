@@ -1,10 +1,6 @@
 package com.example.thesimpleeventapp.service.user;
 
-import com.example.thesimpleeventapp.dto.user.CreateUserDto;
-import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
-import com.example.thesimpleeventapp.dto.user.UserPublicProfileDto;
-import com.example.thesimpleeventapp.dto.user.UserProfileDto;
-import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -16,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,8 +113,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
     private UserPublicProfileDto convertToProfileDto(User user) {
         return UserPublicProfileDto.builder()
                 .firstName(user.getFirstName())
@@ -133,6 +130,15 @@ public class UserServiceImpl implements UserService {
         return convertToProfileDto(user);
     }
 
+
+    @Override
+    public void updateProfilePicture(Long userId, ProfilePictureUpdateDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+
+        user.setProfilePictureUrl(dto.getProfilePictureUrl());
+        userRepository.save(user);
+    }
 
     @Override
     public List<UserRequestDTO> getAllUsers() {
