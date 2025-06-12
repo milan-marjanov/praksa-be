@@ -53,6 +53,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserByIds(List<Long> ids) {
+        return userRepository.findAllById(ids);
+    }
+
+    @Override
     public User saveUserWithDefaults(CreateUserDto createUserDTO) {
         if (userRepository.findByEmail(createUserDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyInUseException("User with email " + createUserDTO.getEmail() + " already exists");
@@ -97,6 +102,8 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
+
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

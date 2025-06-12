@@ -15,4 +15,5 @@ public interface UserService {
     void changePassword(
             Long userId,
             PasswordChangeRequestDTO passwordDTO);
+    List<User> getUserByIds(List<Long> id);
 }
