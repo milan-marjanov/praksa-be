@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.controller;
 
 import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.model.User;
+import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,13 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtUtils jwtUtils) {
+
         this.userService = userService;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/admin/createUser")
@@ -26,12 +30,18 @@ public class UserController {
         return userService.saveUserWithDefaults(userDTO);
     }
 
-    @PostMapping("/user/{id}/change-password")
-    public ResponseEntity<String> changePassword(@PathVariable Long id, @Valid @RequestBody PasswordChangeRequestDTO requestDTO) {
-        userService.changePassword(id, requestDTO);
+
+    @PostMapping("/user/change-password")
+    public ResponseEntity<String> changePassword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody PasswordChangeRequestDTO requestDTO) {
+
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        userService.changePassword(userId, requestDTO);
         return ResponseEntity.ok("Password changed successfully");
     }
-
 
     @GetMapping("user/{id}/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long id) {

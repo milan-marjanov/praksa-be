@@ -41,6 +41,21 @@ public class JwtUtils {
                 .compact();
     }
 
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return Long.parseLong(claims.get("id").toString());
+    }
+
+    private Claims extractAllClaims(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(Key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims;
+    }
+
 
     public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);
