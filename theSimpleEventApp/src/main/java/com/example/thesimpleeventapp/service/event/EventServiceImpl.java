@@ -57,6 +57,10 @@ public class EventServiceImpl implements EventService {
         User creator = userService.getUserById(eventDto.getCreatorId());
         List<User> initialParticipants = userService.getUserByIds(eventDto.getParticipantIds());
 
+        if (!initialParticipants.contains(creator)) {
+            initialParticipants.add(0, creator);
+        }
+
         Event newEvent = Event.builder()
                 .title(eventDto.getTitle())
                 .description(eventDto.getDescription())
@@ -82,6 +86,11 @@ public class EventServiceImpl implements EventService {
         existingEvent.setTitle(eventDto.getTitle());
         existingEvent.setDescription(eventDto.getDescription());
         existingEvent.setParticipants(users);
+
+        User creator = existingEvent.getCreator();
+        if (!users.contains(creator)) {
+            users.add(0, creator);
+        }
 
         Event updatedEvent = eventRepository.save(existingEvent);
 
