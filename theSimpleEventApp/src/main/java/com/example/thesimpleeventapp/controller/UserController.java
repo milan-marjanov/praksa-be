@@ -34,7 +34,7 @@ public class UserController {
     @PostMapping("/user/change-password")
     public ResponseEntity<String> changePassword(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody PasswordChangeRequestDTO requestDTO) {
+            @Valid @RequestBody PasswordChangeRequestDTO requestDTO) {
 
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
