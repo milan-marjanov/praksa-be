@@ -34,4 +34,9 @@ public class EventController {
     public EventDto updateEvent(@RequestBody UpdateEventDto updateEventDto, @PathVariable Long eventId){
         return eventService.updateEvent(updateEventDto, eventId);
     }
+
+    @DeleteMapping("/deleteEvent/{eventId}")
+    public void deleteEvent(@PathVariable Long eventId){
+        eventService.deleteEvent(eventId);
+    }
 }

@@ -94,4 +94,8 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toDto(updatedEvent);
     }
 
+    @Override
+    public void deleteEvent(Long eventId) {
+        eventRepository.deleteById(eventId);
+    }
 }
