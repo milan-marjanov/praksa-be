@@ -40,9 +40,12 @@ public class UserController {
         return ResponseEntity.ok("Password changed successfully");
     }
 
-    @GetMapping("user/{id}/profile")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long id) {
-        UserProfileDto userProfileDto = userService.getUserProfileById(id);
+    @GetMapping("user/profile")
+    public ResponseEntity<UserProfileDto> getUserProfile(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        UserProfileDto userProfileDto = userService.getUserProfileById(userId);
         return ResponseEntity.ok(userProfileDto);
     }
 
