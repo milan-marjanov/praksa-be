@@ -103,7 +103,6 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

@@ -25,7 +25,7 @@ public class Event {
 
     private String description;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
     @JoinColumn(name = "user_id",nullable = false)
     private User creator;
 
