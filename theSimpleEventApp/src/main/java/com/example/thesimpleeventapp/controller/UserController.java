@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -71,13 +72,13 @@ public class UserController {
         return ResponseEntity.ok(profileDto);
     }
 
-    @PutMapping("/user/update-profile-picture")
-    public ResponseEntity<String> updateProfilePicture(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody ProfilePictureUpdateDto dto) {
+    @PostMapping("user/upload-profile-picture")
+    public ResponseEntity<String> uploadProfilePicture(@RequestHeader("Authorization") String authHeader, @RequestParam("image") MultipartFile file) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
 
-        userService.updateProfilePicture(userId, dto);
-        return ResponseEntity.ok("Profile picture updated successfully");
+        String imageUrl = userService.saveProfilePicture(userId, file);
+        return ResponseEntity.ok("Profile picture updated successfully.");
     }
 
     @GetMapping("/{id}")
@@ -89,5 +90,7 @@ public class UserController {
     public void deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
     }
+
+
 
 }

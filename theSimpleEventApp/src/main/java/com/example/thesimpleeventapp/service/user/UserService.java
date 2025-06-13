@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.model.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public interface UserService {
 
     UserPublicProfileDto getPublicProfileById(Long id);
 
-    void updateProfilePicture(Long userId, ProfilePictureUpdateDto dto);
-
     List<User> getUserByIds(List<Long> id);
+
+    String saveProfilePicture(Long userId, MultipartFile file);
 }

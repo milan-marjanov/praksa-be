@@ -1,10 +1,7 @@
 package com.example.thesimpleeventapp.service.user;
 
-import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.dto.mapper.UserMapper;
-import com.example.thesimpleeventapp.dto.user.CreateUserDto;
-import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDto;
-import com.example.thesimpleeventapp.dto.user.UserRequestDto;
+import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -15,7 +12,14 @@ import com.example.thesimpleeventapp.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,6 +32,8 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final EmailService emailService;
+
+    private static final String UPLOAD_DIR = "images/";
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
@@ -138,16 +144,6 @@ public class UserServiceImpl implements UserService {
         return convertToPublicProfileDto(user);
     }
 
-
-    @Override
-    public void updateProfilePicture(Long userId, ProfilePictureUpdateDto dto) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
-
-        user.setProfilePictureUrl(dto.getProfilePictureUrl());
-        userRepository.save(user);
-    }
-
     @Override
     public List<UserRequestDto> getAllUsers() {
         return userRepository.findAll()
@@ -173,5 +169,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public String saveProfilePicture(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
+
+        try {
+
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+
+            String filename = "user_" + userId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filepath = Paths.get(UPLOAD_DIR, filename);
+            Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+
+            String imageUrl = "/images/" + filename;
+            user.setProfilePictureUrl(imageUrl);
+            userRepository.save(user);
+
+            return imageUrl;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error: " + e.getMessage(), e);
+        }
     }
 }
