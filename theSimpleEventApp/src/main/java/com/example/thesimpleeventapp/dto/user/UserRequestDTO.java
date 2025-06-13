@@ -3,7 +3,6 @@ package com.example.thesimpleeventapp.dto.user;
 import com.example.thesimpleeventapp.model.Role;
 import lombok.*;
 
-
 @Getter
 @Setter
 @Builder

@@ -13,9 +13,9 @@ public class EventMapper {
         dto.setId(event.getId());
         dto.setTitle(event.getTitle());
         dto.setDescription(event.getDescription());
-        dto.setCreator(UserMapper.toDto(event.getCreator()));
+        dto.setCreator(UserMapper.participantToDto(event.getCreator()));
         List<ParticipantDto> participantDto = event.getParticipants().stream()
-                .map(UserMapper::toDto)
+                .map(UserMapper::participantToDto)
                 .collect(Collectors.toList());
 
         dto.setParticipants(participantDto);

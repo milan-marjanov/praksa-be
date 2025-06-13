@@ -6,12 +6,15 @@ import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.model.Event;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EventService {
     List<EventDto> getAllEvents();
+
     Event getEventById(Long id);
+
     EventDto createEvent(CreateEventDto eventDto);
+
     EventDto updateEvent(UpdateEventDto eventDto, Long eventId);
+
     void deleteEvent(Long eventId);
 }

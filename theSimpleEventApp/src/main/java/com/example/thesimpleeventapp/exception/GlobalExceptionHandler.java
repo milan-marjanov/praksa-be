@@ -25,26 +25,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(EmailAlreadyInUseException.class)
-        public ResponseEntity<String> handleEmailAlreadyInUse(EmailAlreadyInUseException ex){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-        }
+    public ResponseEntity<String> handleEmailAlreadyInUse(EmailAlreadyInUseException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex){
+    public ResponseEntity<String> handleUserNotFound(UserNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(PasswordMissmatchException.class)
-    public ResponseEntity<String> passwordMissmatch(PasswordMissmatchException ex){
+    public ResponseEntity<String> passwordMissmatch(PasswordMissmatchException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<ErrorResponse> eventNotFoundException(EventNotFoundException ex){
+    public ResponseEntity<ErrorResponse> eventNotFoundException(EventNotFoundException ex) {
         return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(InvalidEventDataException.class)
-    public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex){
+    public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

@@ -1,7 +1,6 @@
 package com.example.thesimpleeventapp.dto.event;
 
 import com.example.thesimpleeventapp.model.RestaurantOption;
-import com.example.thesimpleeventapp.model.TimeOption;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

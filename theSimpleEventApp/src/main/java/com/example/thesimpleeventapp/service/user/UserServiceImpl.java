@@ -1,5 +1,6 @@
 package com.example.thesimpleeventapp.service.user;
 
+import com.example.thesimpleeventapp.dto.mapper.UserMapper;
 import com.example.thesimpleeventapp.dto.user.CreateUserDto;
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
@@ -21,8 +22,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-
-
+    
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
@@ -46,10 +46,17 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found."));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+    }
+
+    @Override
+    public UserRequestDTO getUserDtoById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+        return UserMapper.userRequestToDto(user);
     }
 
     @Override
@@ -83,7 +90,8 @@ public class UserServiceImpl implements UserService {
     public void changePassword(
             Long userId,
             PasswordChangeRequestDTO passwordDTO) {
-        User user = this.getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())
                 && passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
@@ -102,7 +110,7 @@ public class UserServiceImpl implements UserService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
-    
+
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

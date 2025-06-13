@@ -2,10 +2,8 @@ package com.example.thesimpleeventapp.service.event;
 
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
-import com.example.thesimpleeventapp.dto.event.ParticipantDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
-import com.example.thesimpleeventapp.dto.mapper.UpdateEventMapper;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.model.Event;
@@ -15,11 +13,9 @@ import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class EventServiceImpl implements EventService {
@@ -50,7 +46,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto createEvent(CreateEventDto eventDto) {
-
         if (eventDto.getTitle() == null || eventDto.getTitle().isBlank()) {
             throw new InvalidEventDataException("Event title must not be empty");
         }
@@ -60,7 +55,6 @@ public class EventServiceImpl implements EventService {
         }
 
         User creator = userService.getUserById(eventDto.getCreatorId());
-
         List<User> initialParticipants = userService.getUserByIds(eventDto.getParticipantIds());
 
         Event newEvent = Event.builder()

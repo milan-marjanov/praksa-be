@@ -12,6 +12,4 @@ public class ParticipantDto {
     private String firstName;
     private String lastName;
     private String profilePicture;
-
-
 }

@@ -9,11 +9,18 @@ import java.util.List;
 
 public interface UserService {
     User saveUserWithDefaults(CreateUserDto createUserDTO);
+
     List<UserRequestDTO> getAllUsers();
+
     User getUserById(Long id);
+
+    UserRequestDTO getUserDtoById(Long id);
+
     void deleteUser(Long id);
+
     void changePassword(
             Long userId,
             PasswordChangeRequestDTO passwordDTO);
+
     List<User> getUserByIds(List<Long> id);
 }

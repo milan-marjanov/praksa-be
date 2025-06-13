@@ -7,16 +7,16 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailServiceImpl implements EmailService{
+public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
 
     @Autowired
-    public EmailServiceImpl(JavaMailSender mailSender){
+    public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     @Override
-    public void sendUserCreationEmail(User user,String password) {
+    public void sendUserCreationEmail(User user, String password) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Account creation");
