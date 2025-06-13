@@ -8,17 +8,17 @@ import java.util.List;
 public interface UserService {
     User saveUserWithDefaults(CreateUserDto createUserDTO);
 
-    List<UserRequestDTO> getAllUsers();
+    List<UserRequestDto> getAllUsers();
 
     User getUserById(Long id);
 
     void deleteUser(Long id);
 
-    void changePassword(Long userId, PasswordChangeRequestDTO passwordDTO);
+    void changePassword(Long userId, PasswordChangeRequestDto passwordDTO);
 
     UserProfileDto getUserProfileById(Long id);
 
-    boolean updateUserProfile(Long userId, UserProfileDto dto);
+    UserProfileDto updateUserProfile(Long userId, UpdateUserProfileDto dto);
 
     UserPublicProfileDto getPublicProfileById(Long id);
 

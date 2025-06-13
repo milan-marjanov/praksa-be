@@ -43,13 +43,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
-    private List<Event> eventsCreated;
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<Notification> notifications;
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 

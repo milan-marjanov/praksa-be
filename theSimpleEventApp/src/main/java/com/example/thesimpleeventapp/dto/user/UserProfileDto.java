@@ -8,15 +8,11 @@ import org.jetbrains.annotations.NotNull;
 @Builder
 public class UserProfileDto {
 
-    @NotNull
     private String firstName;
 
-    @NotNull
     private String lastName;
 
-    @NotNull
     private String email;
 
-    @NotNull
     private String profilePictureUrl;
 }

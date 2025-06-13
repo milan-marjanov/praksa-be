@@ -12,19 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+
     private final EmailService emailService;
 
     @Autowired
@@ -34,19 +32,16 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    private UserRequestDTO convertToDto(User user) {
-        return UserRequestDTO.builder()
+    private UserRequestDto convertToDto(User user) {
+        return UserRequestDto.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profilePicture(user.getProfilePictureUrl())
-                .eventsCreated(user.getEventsCreated())
-                .notifications(user.getNotifications())
                 .build();
     }
-
 
     @Override
     public User getUserById(Long id) {
@@ -67,8 +62,6 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(tempPassword))
                 .role(Role.USER)
                 .profilePictureUrl("https://example.com/default-profile.png")
-                .eventsCreated(new ArrayList<>())
-                .notifications(new ArrayList<>())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -78,19 +71,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(
-            Long userId,
-            PasswordChangeRequestDTO passwordDTO) {
+    public void changePassword(Long userId, PasswordChangeRequestDto passwordDTO) {
         User user = this.getUserById(userId);
 
-        if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())
-                && passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
-            userRepository.save(user);
-        } else {
-            throw new PasswordMissmatchException("Passwords don't match");
+        if (!passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
+            throw new PasswordMissmatchException("Old password is incorrect");
         }
 
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getNewPasswordConfirm())) {
+            throw new PasswordMissmatchException("New passwords do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override
@@ -98,12 +91,12 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
 
-        return convertToDtoProfile(user);
+        return convertToPersonalDtoProfile(user);
 
 
     }
 
-    private UserProfileDto convertToDtoProfile(User user) {
+    private UserProfileDto convertToPersonalDtoProfile(User user) {
         return UserProfileDto.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -112,8 +105,7 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-
-    private UserPublicProfileDto convertToProfileDto(User user) {
+    private UserPublicProfileDto convertToPublicProfileDto(User user) {
         return UserPublicProfileDto.builder()
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
@@ -121,13 +113,12 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-
     @Override
     public UserPublicProfileDto getPublicProfileById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
 
-        return convertToProfileDto(user);
+        return convertToPublicProfileDto(user);
     }
 
 
@@ -141,7 +132,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRequestDTO> getAllUsers() {
+    public List<UserRequestDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(this::convertToDto)
@@ -149,7 +140,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUserProfile(Long userId, UserProfileDto dto) {
+    public UserProfileDto updateUserProfile(Long userId, UpdateUserProfileDto dto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
@@ -159,7 +150,7 @@ public class UserServiceImpl implements UserService {
         user.setProfilePictureUrl(dto.getProfilePictureUrl());
 
         userRepository.save(user);
-        return true;
+        return convertToPersonalDtoProfile(user);
     }
 
     @Override

@@ -8,19 +8,27 @@ import lombok.*;
 import java.util.List;
 
 
-@Getter
-@Setter
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserRequestDTO {
+@Data
+public class UserRequestDto {
+
     private Long id;
+
     private String firstName;
+
     private String lastName;
+
     private String email;
+
     private String profilePicture;
+
     private Role role;
+
     private List<Event> eventsCreated;
+
     private List<Notification> notifications;
 
 }

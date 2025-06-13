@@ -32,10 +32,7 @@ public class UserController {
 
 
     @PostMapping("/user/change-password")
-    public ResponseEntity<String> changePassword(
-            @RequestHeader("Authorization") String authHeader,
-            @Valid @RequestBody PasswordChangeRequestDTO requestDTO) {
-
+    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody PasswordChangeRequestDto requestDTO) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
 
@@ -50,16 +47,18 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserRequestDTO> getAllUsers() {
+    public List<UserRequestDto> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @PutMapping("user/{id}/profile")
-    public ResponseEntity<String> updateUserProfile(@PathVariable Long id, @Valid @RequestBody UserProfileDto dto) {
-        userService.updateUserProfile(id, dto);
-        return ResponseEntity.ok("Profile updated successfully.");
-    }
+    @PutMapping("user/update-profile")
+    public ResponseEntity<UserProfileDto> updateUserProfile(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody UpdateUserProfileDto dto) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
 
+        UserProfileDto userProfileDto = userService.updateUserProfile(userId, dto);
+        return ResponseEntity.ok(userProfileDto);
+    }
 
     @GetMapping("user/{id}/public-profile")
     public ResponseEntity<UserPublicProfileDto> getPublicProfile(@PathVariable Long id) {
@@ -67,10 +66,12 @@ public class UserController {
         return ResponseEntity.ok(profileDto);
     }
 
+    @PutMapping("/user/update-profile-picture")
+    public ResponseEntity<String> updateProfilePicture(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody ProfilePictureUpdateDto dto) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
 
-    @PutMapping("/user/{id}/profile-picture")
-    public ResponseEntity<String> updateProfilePicture(@PathVariable Long id, @Valid @RequestBody ProfilePictureUpdateDto dto) {
-        userService.updateProfilePicture(id, dto);
+        userService.updateProfilePicture(userId, dto);
         return ResponseEntity.ok("Profile picture updated successfully");
     }
 
