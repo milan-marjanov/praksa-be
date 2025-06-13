@@ -19,5 +19,6 @@ public class CreateUserDto {
     @NotBlank(message = "Email is required")
     private String email;
 
+
 }
 

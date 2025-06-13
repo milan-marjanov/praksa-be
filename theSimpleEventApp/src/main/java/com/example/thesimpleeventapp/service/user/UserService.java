@@ -6,11 +6,14 @@ import com.example.thesimpleeventapp.model.User;
 import java.util.List;
 
 public interface UserService {
+
     User saveUserWithDefaults(CreateUserDto createUserDTO);
 
     List<UserRequestDto> getAllUsers();
 
     User getUserById(Long id);
+
+    UserRequestDto getUserDtoById(Long id);
 
     void deleteUser(Long id);
 
@@ -24,4 +27,5 @@ public interface UserService {
 
     void updateProfilePicture(Long userId, ProfilePictureUpdateDto dto);
 
+    List<User> getUserByIds(List<Long> id);
 }

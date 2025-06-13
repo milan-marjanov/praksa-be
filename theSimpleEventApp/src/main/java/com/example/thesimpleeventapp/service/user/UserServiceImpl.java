@@ -1,6 +1,10 @@
 package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.*;
+import com.example.thesimpleeventapp.dto.mapper.UserMapper;
+import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDto;
+import com.example.thesimpleeventapp.dto.user.UserRequestDto;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -45,7 +49,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found."));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+    }
+
+    @Override
+    public UserRequestDto getUserDtoById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found."));
+        return UserMapper.userRequestToDto(user);
+    }
+
+    @Override
+    public List<User> getUserByIds(List<Long> ids) {
+        return userRepository.findAllById(ids);
     }
 
     @Override
