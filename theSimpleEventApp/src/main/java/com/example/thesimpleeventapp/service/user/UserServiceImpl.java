@@ -10,12 +10,18 @@ import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -124,7 +130,6 @@ public class UserServiceImpl implements UserService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
-                .profilePictureUrl(user.getProfilePictureUrl())
                 .build();
     }
 
@@ -160,7 +165,7 @@ public class UserServiceImpl implements UserService {
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
         user.setEmail(dto.getEmail());
-        user.setProfilePictureUrl(dto.getProfilePictureUrl());
+
 
         userRepository.save(user);
         return convertToPersonalDtoProfile(user);
@@ -173,6 +178,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String saveProfilePicture(Long userId, MultipartFile file) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
 
@@ -183,12 +189,10 @@ public class UserServiceImpl implements UserService {
                 uploadDir.mkdirs();
             }
 
-
-            String filename = "user_" + userId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path filepath = Paths.get(UPLOAD_DIR, filename);
+            String imageUrl = "user_" + userId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filepath = Paths.get(UPLOAD_DIR, imageUrl).normalize();
             Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
 
-            String imageUrl = "/images/" + filename;
             user.setProfilePictureUrl(imageUrl);
             userRepository.save(user);
 
@@ -196,6 +200,40 @@ public class UserServiceImpl implements UserService {
 
         } catch (IOException e) {
             throw new RuntimeException("Error: " + e.getMessage(), e);
+
+        }
+        
+    }
+
+    @Override
+    public ResponseEntity<Resource> loadImage(Long userId) throws MalformedURLException {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        String filename = user.getProfilePictureUrl();
+        if (filename == null || filename.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
+
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (resource.exists() && resource.isReadable()) {
+            System.out.println(resource.exists());
+            System.out.println(resource.isReadable());
+            MediaType contentType = MediaTypeFactory.getMediaType(resource)
+                    .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .contentType(contentType)
+                    .body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
+
 }

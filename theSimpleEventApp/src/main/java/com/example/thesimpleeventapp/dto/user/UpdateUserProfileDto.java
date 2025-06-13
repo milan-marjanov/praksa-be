@@ -14,6 +14,4 @@ public class UpdateUserProfileDto {
     @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Profile picture URL is required")
-    private String profilePictureUrl;
 }

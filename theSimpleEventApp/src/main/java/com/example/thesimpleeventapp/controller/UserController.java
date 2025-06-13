@@ -11,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 @RestController
@@ -89,6 +92,13 @@ public class UserController {
     @DeleteMapping("/admin/{id}")
     public void deleteUser(@PathVariable Long id){
         userService.deleteUser(id);
+    }
+
+    @GetMapping("/user/image")
+    public ResponseEntity<Resource> getImage(@RequestHeader("Authorization") String authHeader) throws MalformedURLException {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+        return userService.loadImage(userId);
     }
 
 
