@@ -1,8 +1,18 @@
 package com.example.thesimpleeventapp.controller;
 
+
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+
+
+import com.example.thesimpleeventapp.dto.event.EventDto;
+
+import com.example.thesimpleeventapp.dto.event.CreateEventDto;
+import com.example.thesimpleeventapp.dto.event.EventDto;
+import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+
+
 import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,5 +1,8 @@
 package com.example.thesimpleeventapp.service.event;
 
+import com.example.thesimpleeventapp.dto.event.EventDto;
+import com.example.thesimpleeventapp.model.Event;
+import java.util.List;
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
