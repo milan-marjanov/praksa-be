@@ -1,6 +1,7 @@
 package com.example.thesimpleeventapp.security;
-import com.example.thesimpleeventapp.dto.auth.AuthResponse;
+
 import com.example.thesimpleeventapp.dto.auth.AuthRequest;
+import com.example.thesimpleeventapp.dto.auth.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +19,12 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> signIn(@RequestBody AuthRequest authRequest) {
         AuthResponse response = authService.signIn(authRequest);
-        if(response.getToken() != null) {
+        if (response.getToken() != null) {
             return ResponseEntity.ok(response);
-        }else {
+        } else {
             return ResponseEntity.status(401).body(response);
         }
     }
 
-   
+
 }

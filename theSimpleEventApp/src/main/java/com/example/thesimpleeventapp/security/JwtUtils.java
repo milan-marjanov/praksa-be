@@ -3,14 +3,14 @@ package com.example.thesimpleeventapp.security;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import io.jsonwebtoken.Jwts;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;

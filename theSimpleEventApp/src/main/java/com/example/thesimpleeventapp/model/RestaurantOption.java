@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,11 +12,12 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class RestaurantOption {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id",nullable = false)
+    @Column(name = "id", nullable = false)
     private long id;
 
     @Column(nullable = false)
@@ -26,7 +28,7 @@ public class RestaurantOption {
     private String restaurantUrl;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "event_id",nullable = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
     @OneToMany(mappedBy = "restaurantOption", cascade = CascadeType.ALL)
