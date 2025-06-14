@@ -35,6 +35,7 @@ public class SecurityConfig {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
         this.jwtAuthFilter = jwtAuthFilter;
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -52,7 +53,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**",  "/public/**").permitAll()
+                        .requestMatchers("/auth/**", "/public/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/api/user/**").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("/api").hasAnyAuthority("ADMIN", "USER")

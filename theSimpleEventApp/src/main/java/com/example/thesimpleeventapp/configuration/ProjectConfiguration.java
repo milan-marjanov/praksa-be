@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.configuration;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
+
 import java.util.Objects;
 
 @Configuration

@@ -33,5 +33,4 @@ public class Vote {
     private RestaurantOption restaurantOption;
 
 
-
 }
