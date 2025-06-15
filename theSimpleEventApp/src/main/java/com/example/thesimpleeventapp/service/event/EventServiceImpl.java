@@ -50,10 +50,6 @@ public class EventServiceImpl implements EventService {
             throw new InvalidEventDataException("Event title must not be empty");
         }
 
-        if (eventDto.getDescription() == null || eventDto.getDescription().isBlank()) {
-            throw new InvalidEventDataException("Event description must not be empty");
-        }
-
         User creator = userService.getUserById(eventDto.getCreatorId());
         List<User> initialParticipants = userService.getUserByIds(eventDto.getParticipantIds());
 
