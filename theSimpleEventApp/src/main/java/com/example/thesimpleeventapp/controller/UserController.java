@@ -60,7 +60,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PutMapping("user/update-profile")
+    @PatchMapping("user/update-profile")
     public ResponseEntity<UserProfileDto> updateUserProfile(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody UpdateUserProfileDto dto) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
