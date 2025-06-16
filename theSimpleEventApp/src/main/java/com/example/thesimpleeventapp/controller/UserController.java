@@ -38,6 +38,11 @@ public class UserController {
         return userService.loadImage(userId);
     }
 
+    @GetMapping("/user/public/{id}/image")
+    public ResponseEntity<Resource> getPublicImage(@PathVariable Long id) throws MalformedURLException {
+        return userService.loadImage(id);
+    }
+
     @GetMapping("user/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
