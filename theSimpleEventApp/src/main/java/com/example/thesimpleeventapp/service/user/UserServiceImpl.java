@@ -236,4 +236,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public void deleteImage(Long id) {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        user.setProfilePictureUrl(null);
+        userRepository.save(user);
+
+    }
+
 }

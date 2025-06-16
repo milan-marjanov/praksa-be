@@ -31,19 +31,11 @@ public class UserController {
         this.jwtUtils = jwtUtils;
     }
 
-    @PostMapping("/admin/createUser")
-    public User createUser(@RequestBody CreateUserDto userDTO) {
-        return userService.saveUserWithDefaults(userDTO);
-    }
-
-
-    @PostMapping("/user/change-password")
-    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody PasswordChangeRequestDto requestDTO) {
+    @GetMapping("/user/image")
+    public ResponseEntity<Resource> getImage(@RequestHeader("Authorization") String authHeader) throws MalformedURLException {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
-
-        userService.changePassword(userId, requestDTO);
-        return ResponseEntity.ok("Password changed successfully");
+        return userService.loadImage(userId);
     }
 
     @GetMapping("user/profile")
@@ -60,13 +52,9 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PatchMapping("user/update-profile")
-    public ResponseEntity<UserProfileDto> updateUserProfile(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody UpdateUserProfileDto dto) {
-        String token = authHeader.replace("Bearer ", "");
-        Long userId = jwtUtils.extractUserId(token);
-
-        UserProfileDto userProfileDto = userService.updateUserProfile(userId, dto);
-        return ResponseEntity.ok(userProfileDto);
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Long id){
+        return userService.getUserById(id);
     }
 
     @GetMapping("user/{id}/public-profile")
@@ -84,9 +72,27 @@ public class UserController {
         return ResponseEntity.ok("Profile picture updated successfully.");
     }
 
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
-        return userService.getUserById(id);
+    @PostMapping("/admin/createUser")
+    public User createUser(@RequestBody CreateUserDto userDTO) {
+        return userService.saveUserWithDefaults(userDTO);
+    }
+
+    @PostMapping("/user/change-password")
+    public ResponseEntity<String> changePassword(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody PasswordChangeRequestDto requestDTO) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        userService.changePassword(userId, requestDTO);
+        return ResponseEntity.ok("Password changed successfully");
+    }
+
+    @PatchMapping("user/update-profile")
+    public ResponseEntity<UserProfileDto> updateUserProfile(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody UpdateUserProfileDto dto) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
+        UserProfileDto userProfileDto = userService.updateUserProfile(userId, dto);
+        return ResponseEntity.ok(userProfileDto);
     }
 
     @DeleteMapping("/admin/{id}")
@@ -94,12 +100,14 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    @GetMapping("/user/image")
-    public ResponseEntity<Resource> getImage(@RequestHeader("Authorization") String authHeader) throws MalformedURLException {
+    @DeleteMapping("user/removeImage")
+    public ResponseEntity<String> deleteImage(@RequestHeader("Authorization") String authHeader) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
-        return userService.loadImage(userId);
+        userService.deleteImage(userId);
+        return ResponseEntity.ok("Profile picture updated successfully.");
     }
+
 
 
 

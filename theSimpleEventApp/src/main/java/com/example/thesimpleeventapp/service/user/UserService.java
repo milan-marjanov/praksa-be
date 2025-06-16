@@ -35,4 +35,6 @@ public interface UserService {
 
     ResponseEntity<Resource> loadImage(Long userId) throws MalformedURLException;
 
+    void deleteImage(Long id);
+
 }
