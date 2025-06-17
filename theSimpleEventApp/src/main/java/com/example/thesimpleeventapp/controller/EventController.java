@@ -6,6 +6,7 @@ import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.vote.CreateVote;
 import com.example.thesimpleeventapp.security.JwtUtils;
+import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.service.event.EventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class EventController {
     @Autowired
     public EventController(EventService eventService,JwtUtils jwtUtils) {
 
+    public EventController(EventService eventService) {
         this.eventService = eventService;
         this.jwtUtils = jwtUtils;
     }
@@ -31,6 +33,17 @@ public class EventController {
     @GetMapping("/fetchAllEvents")
     public List<EventDto> fetchAllEvents() {
         return eventService.getAllEvents();
+    }
+
+    @GetMapping("/basic")
+    public List<EventBasicDto> getAllBasicEvents() {
+        return eventService.getAllBasicEvents();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDetailsDto> getEventDetails(@PathVariable Long id) {
+        EventDetailsDto eventDetails = eventService.getEventDetails(id);
+        return ResponseEntity.ok(eventDetails);
     }
 
     @PostMapping("/createEvent")
@@ -55,4 +68,6 @@ public class EventController {
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
     }
+
+
 }
