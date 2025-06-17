@@ -4,12 +4,13 @@ import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
+import com.example.thesimpleeventapp.dto.vote.CreateVote;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
-import com.example.thesimpleeventapp.model.Event;
-import com.example.thesimpleeventapp.model.User;
-import com.example.thesimpleeventapp.repository.EventRepository;
+import com.example.thesimpleeventapp.model.*;
+import com.example.thesimpleeventapp.repository.*;
 import com.example.thesimpleeventapp.service.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,10 +23,19 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final TimeOptionRepository timeOptionRepository;
+    private final RestaurantOptionRepository restaurantOptionRepository;
+    private final VoteRepository voteRepository;
 
-    public EventServiceImpl(EventRepository eventRepository, UserService userService) {
+    @Autowired
+    public EventServiceImpl(EventRepository eventRepository, UserService userService,UserRepository userRepository,TimeOptionRepository timeOptionRepository,RestaurantOptionRepository restaurantOptionRepository,VoteRepository voteRepository) {
         this.eventRepository = eventRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.timeOptionRepository = timeOptionRepository;
+        this.restaurantOptionRepository = restaurantOptionRepository;
+        this.voteRepository = voteRepository;
     }
 
     @Override
@@ -96,5 +106,61 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteEvent(Long eventId) {
         eventRepository.deleteById(eventId);
+    }
+
+    @Override
+    public boolean voteForEvent(CreateVote dto,Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Event> eventOpt = eventRepository.findById(dto.getEventId());
+
+        if (userOpt.isEmpty() || eventOpt.isEmpty()) {
+            throw new EventNotFoundException("Event or user not found.");
+        }
+        Optional<Vote> existingVoteOpt = voteRepository.findByUserIdAndEventId(userId, dto.getEventId());
+
+        if (existingVoteOpt.isPresent()) {
+            Vote vote = existingVoteOpt.get();
+
+            if (vote.getTimeOption().getId() != dto.getTimeOptionId()) {
+                Optional<TimeOption> newTimeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
+                if (newTimeOpt.isEmpty()) {
+                    throw new EventNotFoundException("Time option not found.");
+                }
+                vote.setTimeOption(newTimeOpt.get());
+            }
+
+            if (dto.getRestaurantOptionId() != null) {
+                Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
+                if (restOpt.isEmpty()) {
+                    throw new IllegalArgumentException("No restaurant found with the given ID.");
+                }
+                vote.setRestaurantOption(restOpt.get());
+            }
+
+            voteRepository.save(vote);
+            return true;
+        }
+
+
+        Optional<TimeOption> timeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
+        if (timeOpt.isEmpty()) {
+            throw new EventNotFoundException("Time option not found.");
+        }
+
+        Vote newVote = new Vote();
+        newVote.setUser(userOpt.get());
+        newVote.setEvent(eventOpt.get());
+        newVote.setTimeOption(timeOpt.get());
+
+        if (dto.getRestaurantOptionId() != null) {
+            Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
+            if (restOpt.isEmpty()) {
+                throw new IllegalArgumentException("No restaurant found with the given ID.");
+            }
+            newVote.setRestaurantOption(restOpt.get());
+        }
+
+        voteRepository.save(newVote);
+        return true;
     }
 }

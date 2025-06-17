@@ -4,8 +4,12 @@ package com.example.thesimpleeventapp.controller;
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+import com.example.thesimpleeventapp.dto.vote.CreateVote;
+import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.service.event.EventService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,12 +17,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/events")
 public class EventController {
+
     private final EventService eventService;
+    private final JwtUtils jwtUtils;
 
     @Autowired
+    public EventController(EventService eventService,JwtUtils jwtUtils) {
 
-    public EventController(EventService eventService) {
         this.eventService = eventService;
+        this.jwtUtils = jwtUtils;
     }
 
     @GetMapping("/fetchAllEvents")
@@ -29,6 +36,14 @@ public class EventController {
     @PostMapping("/createEvent")
     public EventDto createEvent(@RequestBody CreateEventDto eventDto) {
         return eventService.createEvent(eventDto);
+    }
+
+    @PostMapping("/voting")
+    public ResponseEntity<Boolean> submitVote(@RequestHeader("Authorization") String authHeader,@Valid @RequestBody CreateVote voteRequestDto) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+        Boolean message = eventService.voteForEvent(voteRequestDto,userId);
+        return ResponseEntity.ok(message);
     }
 
     @PatchMapping("/updateEvent/{eventId}")
