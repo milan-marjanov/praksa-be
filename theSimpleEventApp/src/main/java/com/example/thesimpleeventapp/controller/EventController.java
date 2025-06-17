@@ -22,10 +22,9 @@ public class EventController {
     private final EventService eventService;
     private final JwtUtils jwtUtils;
 
+
     @Autowired
     public EventController(EventService eventService,JwtUtils jwtUtils) {
-
-    public EventController(EventService eventService) {
         this.eventService = eventService;
         this.jwtUtils = jwtUtils;
     }
