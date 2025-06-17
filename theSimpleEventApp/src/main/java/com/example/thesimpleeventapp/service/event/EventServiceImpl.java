@@ -1,6 +1,7 @@
 package com.example.thesimpleeventapp.service.event;
 
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
+import com.example.thesimpleeventapp.dto.event.EventBasicDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
@@ -97,4 +98,24 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId) {
         eventRepository.deleteById(eventId);
     }
+
+
+    @Override
+    public List<EventBasicDto> getAllBasicEvents() {
+        List<Event> events = eventRepository.findAll();
+        return events.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private EventBasicDto convertToDto(Event event) {
+        return EventBasicDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .build();
+    }
+
+
+
 }

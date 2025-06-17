@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.controller;
 
 
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
+import com.example.thesimpleeventapp.dto.event.EventBasicDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.service.event.EventService;
@@ -16,7 +17,6 @@ public class EventController {
     private final EventService eventService;
 
     @Autowired
-
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
@@ -24,6 +24,11 @@ public class EventController {
     @GetMapping("/fetchAllEvents")
     public List<EventDto> fetchAllEvents() {
         return eventService.getAllEvents();
+    }
+
+    @GetMapping("/basic")
+    public List<EventBasicDto> getAllBasicEvents() {
+        return eventService.getAllBasicEvents();
     }
 
     @PostMapping("/createEvent")
