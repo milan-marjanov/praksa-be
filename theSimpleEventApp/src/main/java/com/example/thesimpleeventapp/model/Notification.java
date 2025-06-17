@@ -13,7 +13,7 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id",nullable = false)
+    @Column(name = "id", nullable = false)
     private long id;
 
     @Column(nullable = false)
@@ -24,9 +24,6 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Event event;
-
-
-
 
 
 }
