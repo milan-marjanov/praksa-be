@@ -1,12 +1,10 @@
 package com.example.thesimpleeventapp.controller;
 
 
-import com.example.thesimpleeventapp.dto.event.CreateEventDto;
-import com.example.thesimpleeventapp.dto.event.EventBasicDto;
-import com.example.thesimpleeventapp.dto.event.EventDto;
-import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +29,12 @@ public class EventController {
         return eventService.getAllBasicEvents();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDetailsDto> getEventDetails(@PathVariable Long id) {
+        EventDetailsDto eventDetails = eventService.getEventDetails(id);
+        return ResponseEntity.ok(eventDetails);
+    }
+
     @PostMapping("/createEvent")
     public EventDto createEvent(@RequestBody CreateEventDto eventDto) {
         return eventService.createEvent(eventDto);
@@ -45,4 +49,6 @@ public class EventController {
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
     }
+
+
 }

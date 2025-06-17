@@ -1,13 +1,13 @@
 package com.example.thesimpleeventapp.service.event;
 
-import com.example.thesimpleeventapp.dto.event.CreateEventDto;
-import com.example.thesimpleeventapp.dto.event.EventBasicDto;
-import com.example.thesimpleeventapp.dto.event.EventDto;
-import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
+import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.model.Event;
+import com.example.thesimpleeventapp.model.RestaurantOption;
+import com.example.thesimpleeventapp.model.TimeOption;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.EventRepository;
 import com.example.thesimpleeventapp.service.user.UserService;
@@ -104,11 +104,51 @@ public class EventServiceImpl implements EventService {
     public List<EventBasicDto> getAllBasicEvents() {
         List<Event> events = eventRepository.findAll();
         return events.stream()
-                .map(this::convertToDto)
+                .map(this::convertToBasicDto)
                 .collect(Collectors.toList());
     }
 
-    private EventBasicDto convertToDto(Event event) {
+    @Override
+    public EventDetailsDto getEventDetails(long id) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+
+        return EventDetailsDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .participants(event.getParticipants().stream().map(this::convertUserToDto).collect(Collectors.toList()))
+                .timeOptions(event.getTimeOptions().stream().map(this::convertTimeOptionToDto).collect(Collectors.toList()))
+                .restaurantOptions(event.getRestaurantOptions().stream().map(this::convertRestaurantToDto).collect(Collectors.toList()))
+                .build();
+    }
+
+    private UserProfileDto convertUserToDto(User user) {
+        return UserProfileDto.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
+    }
+
+    private TimeOptionDto convertTimeOptionToDto(TimeOption timeOption) {
+        return TimeOptionDto.builder()
+                .id(timeOption.getId())
+                .startTime(timeOption.getStartTime())
+                .endTime(timeOption.getEndTime())
+                .deadline(timeOption.getDeadline())
+                .build();
+    }
+
+    private RestaurantOptionDto convertRestaurantToDto(RestaurantOption restaurantOption) {
+        return RestaurantOptionDto.builder()
+                .id(restaurantOption.getId())
+                .name(restaurantOption.getName())
+                .menuImageUrl(restaurantOption.getMenuImageUrl())
+                .restaurantUrl(restaurantOption.getRestaurantUrl())
+                .build();
+    }
+
+    private EventBasicDto convertToBasicDto(Event event) {
         return EventBasicDto.builder()
                 .id(event.getId())
                 .title(event.getTitle())
