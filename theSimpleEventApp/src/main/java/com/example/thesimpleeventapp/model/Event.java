@@ -25,6 +25,8 @@ public class Event {
 
     private String description;
 
+    private TimeOptionType timeOptionType;
+
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User creator;

@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.exception;
 
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidTimeOptionException;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -63,6 +64,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidEventDataException.class)
     public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex) {
+        return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(InvalidTimeOptionException.class)
+    public ResponseEntity<ErrorResponse> invalidTimeOptionException(InvalidTimeOptionException ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
     }
 

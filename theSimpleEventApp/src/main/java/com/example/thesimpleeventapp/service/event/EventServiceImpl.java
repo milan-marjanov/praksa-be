@@ -1,12 +1,14 @@
 package com.example.thesimpleeventapp.service.event;
 
-import com.example.thesimpleeventapp.dto.event.CreateEventDto;
-import com.example.thesimpleeventapp.dto.event.EventDto;
-import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
+import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidTimeOptionException;
 import com.example.thesimpleeventapp.model.Event;
+import com.example.thesimpleeventapp.model.TimeOption;
+import com.example.thesimpleeventapp.model.TimeOptionType;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.EventRepository;
 import com.example.thesimpleeventapp.service.user.UserService;
@@ -28,6 +30,33 @@ public class EventServiceImpl implements EventService {
         this.userService = userService;
     }
 
+    private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
+        switch (optionType) {
+            case FIXED:
+                if (timeOptionDtos.size() != 1) {
+                    throw new InvalidTimeOptionException("For FIXED option type, exactly 1 time option must be provided.");
+                }
+                break;
+
+            case VOTING:
+                if (timeOptionDtos.isEmpty() || timeOptionDtos.size() < 2 || timeOptionDtos.size() > 6) {
+                    throw new InvalidTimeOptionException("For VOTING option type, between 2 and 6 time options must be provided.");
+                }
+                break;
+
+            case CAPACITY_BASED:
+                boolean invalidCapacity = timeOptionDtos.stream()
+                        .anyMatch(dto -> dto.getMaxCapacity() == null || dto.getMaxCapacity() <= 0);
+                if (invalidCapacity) {
+                    throw new InvalidTimeOptionException("For CAPACITY BASED option type, each time option must have a maxCapacity greater than 0.");
+                }
+                break;
+
+            default:
+                throw new InvalidTimeOptionException("Unsupported time option type.");
+        }
+    }
+
     @Override
     public List<EventDto> getAllEvents() {
         List<Event> events = Optional.of(eventRepository.findAll())
@@ -46,6 +75,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventDto createEvent(CreateEventDto eventDto) {
+        // Validate Event basic data
         if (eventDto.getTitle() == null || eventDto.getTitle().isBlank()) {
             throw new InvalidEventDataException("Event title must not be empty");
         }
@@ -66,9 +96,30 @@ public class EventServiceImpl implements EventService {
                 .restaurantOptions(new ArrayList<>())
                 .chat(null)
                 .votes(new ArrayList<>())
+                .timeOptionType(eventDto.getTimeOptionType())
                 .build();
 
+        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
+
+        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
+            validateTimeOptions(newEvent.getTimeOptionType(), timeOptionDtos);
+
+            List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
+                    .map(TimeOptionMapper::toEntity)
+                    .toList();
+
+            timeOptionEntities.forEach(option -> option.setEvent(newEvent));
+            newEvent.getTimeOptions().addAll(timeOptionEntities);
+        }
+
+        List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
+                .map(TimeOptionMapper::toEntity)
+                .toList();
+
+        timeOptionEntities.forEach(option -> option.setEvent(newEvent));
+
         Event savedEvent = eventRepository.save(newEvent);
+
         return EventMapper.toDto(savedEvent);
     }
 

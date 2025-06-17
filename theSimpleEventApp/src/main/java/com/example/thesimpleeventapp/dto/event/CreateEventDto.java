@@ -1,5 +1,6 @@
 package com.example.thesimpleeventapp.dto.event;
 
+import com.example.thesimpleeventapp.model.TimeOptionType;
 import lombok.*;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public class CreateEventDto {
     private String description;
     private Long creatorId;
     private List<Long> participantIds;
+    private List<TimeOptionDto> timeOptions;
+    private TimeOptionType timeOptionType;
 }

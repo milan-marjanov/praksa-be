@@ -3,6 +3,7 @@ package com.example.thesimpleeventapp.controller;
 
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
+import com.example.thesimpleeventapp.dto.event.TimeOptionDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,9 @@ public class EventController {
     }
 
     @PostMapping("/createEvent")
-    public EventDto createEvent(@RequestBody CreateEventDto eventDto) {
-        return eventService.createEvent(eventDto);
+    public String createEvent(@RequestBody CreateEventDto eventDto) {
+        eventService.createEvent(eventDto);
+        return "Event successfully created";
     }
 
     @PatchMapping("/updateEvent/{eventId}")
