@@ -29,7 +29,7 @@ public class Vote {
     private TimeOption timeOption;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_option_id",nullable = false)
+    @JoinColumn(name = "restaurant_option_id")
     private RestaurantOption restaurantOption;
 
 

@@ -13,9 +13,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateEventDto {
+
     private String title;
+
     private String description;
+
     private List<Long> participantIds;
+
     private List<TimeOptionDto> timeOptions;
+
     private List<RestaurantOption> restaurantOptions;
 }
