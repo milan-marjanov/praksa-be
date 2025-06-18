@@ -115,27 +115,34 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public boolean voteForEvent(CreateVote dto,Long userId) {
+    public boolean voteForEvent(CreateVote dto, Long userId) {
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Event> eventOpt = eventRepository.findById(dto.getEventId());
 
         if (userOpt.isEmpty() || eventOpt.isEmpty()) {
             throw new EventNotFoundException("Event or user not found.");
         }
+
         Optional<Vote> existingVoteOpt = voteRepository.findByUserIdAndEventId(userId, dto.getEventId());
 
         if (existingVoteOpt.isPresent()) {
             Vote vote = existingVoteOpt.get();
 
-            if (vote.getTimeOption().getId() != dto.getTimeOptionId()) {
+            if (dto.getTimeOptionId() == null || dto.getTimeOptionId() == 0) {
+                vote.setTimeOption(null);
+            } else if (vote.getTimeOption() == null || vote.getTimeOption().getId() != dto.getTimeOptionId()) {
                 Optional<TimeOption> newTimeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
                 if (newTimeOpt.isEmpty()) {
                     throw new EventNotFoundException("Time option not found.");
                 }
                 vote.setTimeOption(newTimeOpt.get());
             }
-
-            if (dto.getRestaurantOptionId() != null) {
+            
+            if (dto.getRestaurantOptionId() == null) {
+                vote.setRestaurantOption(null);
+            } else if (dto.getRestaurantOptionId() == 0) {
+                vote.setRestaurantOption(null);
+            } else {
                 Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
                 if (restOpt.isEmpty()) {
                     throw new IllegalArgumentException("No restaurant found with the given ID.");
@@ -147,23 +154,26 @@ public class EventServiceImpl implements EventService {
             return true;
         }
 
-
-        Optional<TimeOption> timeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
-        if (timeOpt.isEmpty()) {
+        Optional<TimeOption> timeOpt = dto.getTimeOptionId() == 0 ? Optional.empty() : timeOptionRepository.findById(dto.getTimeOptionId());
+        if (dto.getTimeOptionId() != 0 && timeOpt.isEmpty()) {
             throw new EventNotFoundException("Time option not found.");
         }
 
         Vote newVote = new Vote();
         newVote.setUser(userOpt.get());
         newVote.setEvent(eventOpt.get());
-        newVote.setTimeOption(timeOpt.get());
+        newVote.setTimeOption(timeOpt.orElse(null));
 
         if (dto.getRestaurantOptionId() != null) {
-            Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
-            if (restOpt.isEmpty()) {
-                throw new IllegalArgumentException("No restaurant found with the given ID.");
+            if (dto.getRestaurantOptionId() == 0) {
+                newVote.setRestaurantOption(null);
+            } else {
+                Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
+                if (restOpt.isEmpty()) {
+                    throw new IllegalArgumentException("No restaurant found with the given ID.");
+                }
+                newVote.setRestaurantOption(restOpt.get());
             }
-            newVote.setRestaurantOption(restOpt.get());
         }
 
         voteRepository.save(newVote);

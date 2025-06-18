@@ -9,7 +9,6 @@ public class CreateVote {
     @NotNull(message = "Event ID must not be null")
     private Long eventId;
 
-    @NotNull(message = "Time option ID must not be null")
     private Long timeOptionId;
 
     private Long restaurantOptionId;
