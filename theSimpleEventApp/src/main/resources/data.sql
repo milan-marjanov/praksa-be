@@ -36,3 +36,8 @@ VALUES (
            'https://kalemegdan.rs',
            1
        );
+
+SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 1), true);
+SELECT setval('event_id_seq', COALESCE((SELECT MAX(id) FROM event), 1), true);
+SELECT setval('time_option_id_seq', COALESCE((SELECT MAX(id) FROM time_option), 1), true);
+SELECT setval('restaurant_option_id_seq', COALESCE((SELECT MAX(id) FROM restaurant_option), 1), true);
