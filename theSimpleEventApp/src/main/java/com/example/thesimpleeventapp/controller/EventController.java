@@ -4,6 +4,7 @@ package com.example.thesimpleeventapp.controller;
 import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
+import com.example.thesimpleeventapp.dto.event.UserEventsResponseDto;
 import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +22,20 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @GetMapping("/fetchAllEvents")
-    public List<EventDto> fetchAllEvents() {
-        return eventService.getAllEvents();
+    @GetMapping("/fetchUserEvents/{userId}")
+    public UserEventsResponseDto fetchUserEvents(@PathVariable Long userId) {
+        List<EventDto> allEvents = eventService.getAllEvents();
+
+        List<EventDto> createdEvents = allEvents.stream()
+                .filter(eventDto -> eventDto.getCreator().getId().equals(userId))
+                .toList();
+
+        List<EventDto> participantEvents = allEvents.stream()
+                .filter(eventDto -> eventDto.getParticipants().stream()
+                        .anyMatch(userDto -> userDto.getId().equals(userId)))
+                .toList();
+
+        return new UserEventsResponseDto(createdEvents, participantEvents);
     }
 
     @PostMapping("/createEvent")

@@ -17,8 +17,16 @@ public class EventMapper {
         List<ParticipantDto> participantDto = event.getParticipants().stream()
                 .map(UserMapper::participantToDto)
                 .collect(Collectors.toList());
-
         dto.setParticipants(participantDto);
+        dto.setTimeOptionType(event.getTimeOptionType());
+        dto.setTimeOptions(event.getTimeOptions()
+                .stream()
+                .map(TimeOptionMapper::toDto)
+                .toList());
+        dto.setRestaurantOptions(event.getRestaurantOptions()
+                .stream()
+                .map(RestaurantOptionMapper::toDto)
+                .toList());
         return dto;
     }
 }
