@@ -137,7 +137,7 @@ public class EventServiceImpl implements EventService {
                 }
                 vote.setTimeOption(newTimeOpt.get());
             }
-            
+
             if (dto.getRestaurantOptionId() == null) {
                 vote.setRestaurantOption(null);
             } else if (dto.getRestaurantOptionId() == 0) {
@@ -204,6 +204,7 @@ public class EventServiceImpl implements EventService {
 
     private UserProfileDto convertUserToDto(User user) {
         return UserProfileDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())

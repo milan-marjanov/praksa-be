@@ -127,6 +127,7 @@ public class UserServiceImpl implements UserService {
 
     private UserProfileDto convertToPersonalDtoProfile(User user) {
         return UserProfileDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
@@ -134,7 +135,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserPublicProfileDto convertToPublicProfileDto(User user) {
+        System.out.println("User ID: kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk");
+        System.out.println("User ID: " + user.getId());
+
         return UserPublicProfileDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .profilePictureUrl(user.getProfilePictureUrl())
