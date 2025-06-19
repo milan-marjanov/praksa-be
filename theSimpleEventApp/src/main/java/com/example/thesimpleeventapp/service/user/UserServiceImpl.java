@@ -1,7 +1,7 @@
 package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.mapper.UserMapper;
-import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
 import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
@@ -12,21 +12,36 @@ import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
-    
+
     private final PasswordEncoder passwordEncoder;
 
     private final UserRepository userRepository;
+
     private final EmailService emailService;
+
+    private static final String UPLOAD_DIR = "images/";
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
@@ -35,14 +50,16 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    private UserRequestDTO convertToDto(User user) {
-        return UserRequestDTO.builder()
+    private UserRequestDto convertToDto(User user) {
+        return UserRequestDto.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profilePicture(user.getProfilePictureUrl())
+                .eventsCreated(user.getEventsCreated())
+                .notifications(user.getNotifications())
                 .build();
     }
 
@@ -53,7 +70,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserRequestDTO getUserDtoById(Long id) {
+    public UserRequestDto getUserDtoById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found."));
         return UserMapper.userRequestToDto(user);
@@ -78,6 +95,8 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(tempPassword))
                 .role(Role.USER)
                 .profilePictureUrl("https://example.com/default-profile.png")
+                .eventsCreated(new ArrayList<>())
+                .notifications(new ArrayList<>())
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -87,24 +106,59 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(
-            Long userId,
-            PasswordChangeRequestDTO passwordDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public void changePassword(Long userId, PasswordChangeRequestDto passwordDTO) {
+        User user = this.getUserById(userId);
 
-        if (Objects.equals(passwordDTO.getOldPassword(), passwordDTO.getOldPasswordConfirm())
-                && passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
-            userRepository.save(user);
-        } else {
-            throw new PasswordMissmatchException("Passwords don't match");
+        if (!passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
+            throw new PasswordMissmatchException("Old password is incorrect");
         }
 
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getNewPasswordConfirm())) {
+            throw new PasswordMissmatchException("New passwords do not match");
+        }
+
+        user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override
-    public List<UserRequestDTO> getAllUsers() {
+    public UserProfileDto getUserProfileById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        return convertToPersonalDtoProfile(user);
+
+
+    }
+
+    private UserProfileDto convertToPersonalDtoProfile(User user) {
+        return UserProfileDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
+    }
+
+    private UserPublicProfileDto convertToPublicProfileDto(User user) {
+        return UserPublicProfileDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .build();
+    }
+
+    @Override
+    public UserPublicProfileDto getPublicProfileById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found"));
+
+        return convertToPublicProfileDto(user);
+    }
+
+    @Override
+    public List<UserRequestDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
                 .map(this::convertToDto)
@@ -112,7 +166,92 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserProfileDto updateUserProfile(Long userId, UpdateUserProfileDto dto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+
+
+        userRepository.save(user);
+        return convertToPersonalDtoProfile(user);
+    }
+
+    @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    @Override
+    public String saveProfilePicture(Long userId, MultipartFile file) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found by id: " + userId));
+
+        try {
+
+            File uploadDir = new File(UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            String imageUrl = "user_" + userId + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filepath = Paths.get(UPLOAD_DIR, imageUrl).normalize();
+            Files.copy(file.getInputStream(), filepath, StandardCopyOption.REPLACE_EXISTING);
+
+            user.setProfilePictureUrl(imageUrl);
+            userRepository.save(user);
+
+            return imageUrl;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error: " + e.getMessage(), e);
+
+        }
+
+    }
+
+    @Override
+    public ResponseEntity<Resource> loadImage(Long userId) throws MalformedURLException {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        String filename = user.getProfilePictureUrl();
+        if (filename == null || filename.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+
+        Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
+
+
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (resource.exists() && resource.isReadable()) {
+            System.out.println(resource.exists());
+            System.out.println(resource.isReadable());
+            MediaType contentType = MediaTypeFactory.getMediaType(resource)
+                    .orElse(MediaType.APPLICATION_OCTET_STREAM);
+
+            return ResponseEntity.ok()
+                    .contentType(contentType)
+                    .body(resource);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Override
+    public void deleteImage(Long id) {
+
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        user.setProfilePictureUrl(null);
+        userRepository.save(user);
+
+    }
+
 }

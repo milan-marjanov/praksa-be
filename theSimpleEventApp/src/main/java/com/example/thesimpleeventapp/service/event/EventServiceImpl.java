@@ -6,10 +6,24 @@ import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
 import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.dto.vote.CreateVote;
+import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.model.*;
+import com.example.thesimpleeventapp.repository.*;
+import com.example.thesimpleeventapp.dto.user.UserProfileDto;
+import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
+import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.model.Event;
+import com.example.thesimpleeventapp.model.RestaurantOption;
+import com.example.thesimpleeventapp.model.TimeOption;
+import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidTimeOptionException;
 import com.example.thesimpleeventapp.model.*;
 import com.example.thesimpleeventapp.repository.EventRepository;
 import com.example.thesimpleeventapp.service.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,10 +36,19 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final TimeOptionRepository timeOptionRepository;
+    private final RestaurantOptionRepository restaurantOptionRepository;
+    private final VoteRepository voteRepository;
 
-    public EventServiceImpl(EventRepository eventRepository, UserService userService) {
+    @Autowired
+    public EventServiceImpl(EventRepository eventRepository, UserService userService,UserRepository userRepository,TimeOptionRepository timeOptionRepository,RestaurantOptionRepository restaurantOptionRepository,VoteRepository voteRepository) {
         this.eventRepository = eventRepository;
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.timeOptionRepository = timeOptionRepository;
+        this.restaurantOptionRepository = restaurantOptionRepository;
+        this.voteRepository = voteRepository;
     }
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
@@ -137,8 +160,6 @@ public class EventServiceImpl implements EventService {
 
         List<RestaurantOptionDto> test = eventDto.getRestaurantOptions();
 
-        System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE " + test.get(0).getName());
-
         List<Long> participantIds = eventDto.getParticipantIds();
         List<User> users = (participantIds != null && !participantIds.isEmpty())
                 ? userService.getUserByIds(participantIds)
@@ -186,40 +207,129 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(Long eventId) {
         eventRepository.deleteById(eventId);
     }
+
 }
 
+    @Override
+    public boolean voteForEvent(CreateVote dto, Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Event> eventOpt = eventRepository.findById(dto.getEventId());
 
+        if (userOpt.isEmpty() || eventOpt.isEmpty()) {
+            throw new EventNotFoundException("Event or user not found.");
+        }
 
+        Optional<Vote> existingVoteOpt = voteRepository.findByUserIdAndEventId(userId, dto.getEventId());
 
+        if (existingVoteOpt.isPresent()) {
+            Vote vote = existingVoteOpt.get();
 
+            if (dto.getTimeOptionId() == null || dto.getTimeOptionId() == 0) {
+                vote.setTimeOption(null);
+            } else if (vote.getTimeOption() == null || vote.getTimeOption().getId() != dto.getTimeOptionId()) {
+                Optional<TimeOption> newTimeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
+                if (newTimeOpt.isEmpty()) {
+                    throw new EventNotFoundException("Time option not found.");
+                }
+                vote.setTimeOption(newTimeOpt.get());
+            }
 
+            if (dto.getRestaurantOptionId() == null) {
+                vote.setRestaurantOption(null);
+            } else if (dto.getRestaurantOptionId() == 0) {
+                vote.setRestaurantOption(null);
+            } else {
+                Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
+                if (restOpt.isEmpty()) {
+                    throw new IllegalArgumentException("No restaurant found with the given ID.");
+                }
+                vote.setRestaurantOption(restOpt.get());
+            }
 
+            voteRepository.save(vote);
+            return true;
+        }
 
+        Optional<TimeOption> timeOpt = dto.getTimeOptionId() == 0 ? Optional.empty() : timeOptionRepository.findById(dto.getTimeOptionId());
+        if (dto.getTimeOptionId() != 0 && timeOpt.isEmpty()) {
+            throw new EventNotFoundException("Time option not found.");
+        }
 
+        Vote newVote = new Vote();
+        newVote.setUser(userOpt.get());
+        newVote.setEvent(eventOpt.get());
+        newVote.setTimeOption(timeOpt.orElse(null));
 
+        if (dto.getRestaurantOptionId() != null) {
+            if (dto.getRestaurantOptionId() == 0) {
+                newVote.setRestaurantOption(null);
+            } else {
+                Optional<RestaurantOption> restOpt = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
+                if (restOpt.isEmpty()) {
+                    throw new IllegalArgumentException("No restaurant found with the given ID.");
+                }
+                newVote.setRestaurantOption(restOpt.get());
+            }
+        }
 
+        voteRepository.save(newVote);
+        return true;
+    }
 
+    @Override
+    public List<EventBasicDto> getAllBasicEvents() {
+        List<Event> events = eventRepository.findAll();
+        return events.stream()
+                .map(this::convertToBasicDto)
+                .collect(Collectors.toList());
+    }
 
+    @Override
+    public EventDetailsDto getEventDetails(long id) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
 
+        return EventDetailsDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .participants(event.getParticipants().stream().map(this::convertUserToDto).collect(Collectors.toList()))
+                .timeOptions(event.getTimeOptions().stream().map(this::convertTimeOptionToDto).collect(Collectors.toList()))
+                .restaurantOptions(event.getRestaurantOptions().stream().map(this::convertRestaurantToDto).collect(Collectors.toList()))
+                .build();
+    }
 
-//        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
-//        List<TimeOption> timeOptions = (timeOptionDtos != null && !timeOptionDtos.isEmpty())
-//                ? timeOptionDtos.stream()
-//                .map(timeOptionDto -> {
-//                    TimeOption option = TimeOptionMapper.toEntity(timeOptionDto);
-//                    option.setEvent(existingEvent);
-//                    return option;
-//                })
-//                .collect(Collectors.toList())
-//                : new ArrayList<>();
-//
-//        List<RestaurantOptionDto> restaurantOptionDtos = eventDto.getRestaurantOptions();
-//        List<RestaurantOption> restaurantOptions = (restaurantOptionDtos != null && !restaurantOptionDtos.isEmpty())
-//                ? restaurantOptionDtos.stream()
-//                .map(restaurantOptionDto -> {
-//                    RestaurantOption option = RestaurantOptionMapper.toEntity(restaurantOptionDto);
-//                    option.setEvent(existingEvent);
-//                    return option;
-//                })
-//                .collect(Collectors.toList())
-//                : new ArrayList<>();
+    private UserProfileDto convertUserToDto(User user) {
+        return UserProfileDto.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
+    }
+
+    private TimeOptionDto convertTimeOptionToDto(TimeOption timeOption) {
+        return TimeOptionDto.builder()
+                .id(timeOption.getId())
+                .startTime(timeOption.getStartTime())
+                .endTime(timeOption.getEndTime())
+                .deadline(timeOption.getDeadline())
+                .build();
+    }
+
+    private RestaurantOptionDto convertRestaurantToDto(RestaurantOption restaurantOption) {
+        return RestaurantOptionDto.builder()
+                .id(restaurantOption.getId())
+                .name(restaurantOption.getName())
+                .menuImageUrl(restaurantOption.getMenuImageUrl())
+                .restaurantUrl(restaurantOption.getRestaurantUrl())
+                .build();
+    }
+
+    private EventBasicDto convertToBasicDto(Event event) {
+        return EventBasicDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .build();
+    }
+}

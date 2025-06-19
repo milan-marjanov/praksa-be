@@ -1,7 +1,7 @@
 package com.example.thesimpleeventapp.dto.mapper;
 
 import com.example.thesimpleeventapp.dto.event.ParticipantDto;
-import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.user.UserRequestDto;
 import com.example.thesimpleeventapp.model.User;
 
 public class UserMapper {
@@ -14,8 +14,8 @@ public class UserMapper {
         return dto;
     }
 
-    public static UserRequestDTO userRequestToDto(User user) {
-        UserRequestDTO dto = new UserRequestDTO();
+    public static UserRequestDto userRequestToDto(User user) {
+        UserRequestDto dto = new UserRequestDto();
         dto.setId(user.getId());
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());

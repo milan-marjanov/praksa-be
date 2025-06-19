@@ -18,10 +18,9 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    private final UserRepository userRepository;
-    private SecretKey Key;
-
     private static final long EXPIRATION_TIME = 86400000;
+    private final UserRepository userRepository;
+    private final SecretKey Key;
 
     public JwtUtils(UserRepository userRepository) {
         String secreteString = "1234567890098765432134235353453928573253793279572957979257959759785978593785978399879378fihhieihvihrviherreivhivhivhiehivehi";
@@ -40,6 +39,21 @@ public class JwtUtils {
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(Key)
                 .compact();
+    }
+
+    public Long extractUserId(String token) {
+        Claims claims = extractAllClaims(token);
+        return Long.parseLong(claims.get("id").toString());
+    }
+
+    private Claims extractAllClaims(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(Key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims;
     }
 
 

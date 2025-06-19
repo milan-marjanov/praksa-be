@@ -35,8 +35,13 @@ public class TimeOption {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "event_id")
+
     private Event event;
 
     @OneToMany(mappedBy = "timeOption", cascade = CascadeType.ALL)

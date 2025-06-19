@@ -25,10 +25,12 @@ public class Vote {
     private Event event;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "time_option_id", nullable = false)
+    @JoinColumn(name = "time_option_id")
     private TimeOption timeOption;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_option_id", nullable = false)
+    @JoinColumn(name = "restaurant_option_id")
     private RestaurantOption restaurantOption;
+
+
 }

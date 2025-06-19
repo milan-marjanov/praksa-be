@@ -1,14 +1,9 @@
 package com.example.thesimpleeventapp.dto.user;
-
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
-public class CreateUserDto {
+public class UpdateUserProfileDto {
 
     @NotBlank(message = "First name is required")
     private String firstName;
@@ -18,5 +13,5 @@ public class CreateUserDto {
 
     @NotBlank(message = "Email is required")
     private String email;
-}
 
+}
