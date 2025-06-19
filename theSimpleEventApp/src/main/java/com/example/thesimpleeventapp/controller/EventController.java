@@ -30,6 +30,11 @@ public class EventController {
         this.jwtUtils = jwtUtils;
     }
 
+    @GetMapping("/fetchAllEvents")
+    public List<EventDto> fetchAllEvents(){
+        return eventService.getAllEvents();
+    }
+
     @GetMapping("/fetchUserEvents/{userId}")
     public UserEventsResponseDto fetchUserEvents(@PathVariable Long userId) {
         List<EventDto> allEvents = eventService.getAllEvents();
