@@ -22,6 +22,11 @@ public class EventController {
         this.eventService = eventService;
     }
 
+    @GetMapping("/fetchAllEvents")
+    public List<EventDto> fetchAllEvents(){
+        return eventService.getAllEvents();
+    }
+
     @GetMapping("/fetchUserEvents/{userId}")
     public UserEventsResponseDto fetchUserEvents(@PathVariable Long userId) {
         List<EventDto> allEvents = eventService.getAllEvents();
