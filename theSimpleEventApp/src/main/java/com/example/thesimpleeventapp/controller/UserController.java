@@ -53,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
+    public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
@@ -96,7 +96,7 @@ public class UserController {
     }
 
     @DeleteMapping("/admin/{id}")
-    public void deleteUser(@PathVariable Long id){
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 

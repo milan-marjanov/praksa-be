@@ -7,6 +7,7 @@ import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.vote.CreateVote;
 import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.dto.event.*;
+import com.example.thesimpleeventapp.dto.event.UserEventsResponseDto;
 import com.example.thesimpleeventapp.service.event.EventService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,22 @@ public class EventController {
         this.jwtUtils = jwtUtils;
     }
 
+    @GetMapping("/fetchUserEvents/{userId}")
+    public UserEventsResponseDto fetchUserEvents(@PathVariable Long userId) {
+        List<EventDto> allEvents = eventService.getAllEvents();
+
+        List<EventDto> createdEvents = allEvents.stream()
+                .filter(eventDto -> eventDto.getCreator().getId().equals(userId))
+                .toList();
+
+        List<EventDto> participantEvents = allEvents.stream()
+                .filter(eventDto -> eventDto.getParticipants().stream()
+                        .anyMatch(userDto -> userDto.getId().equals(userId)))
+                .toList();
+
+        return new UserEventsResponseDto(createdEvents, participantEvents);
+    }
+
     @GetMapping("/fetchAllEvents")
     public List<EventDto> fetchAllEvents() {
         return eventService.getAllEvents();
@@ -38,7 +55,6 @@ public class EventController {
     public List<EventBasicDto> getAllBasicEvents() {
         return eventService.getAllBasicEvents();
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<EventDetailsDto> getEventDetails(@PathVariable Long id) {
         EventDetailsDto eventDetails = eventService.getEventDetails(id);
@@ -67,6 +83,4 @@ public class EventController {
     public void deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
     }
-
-
 }

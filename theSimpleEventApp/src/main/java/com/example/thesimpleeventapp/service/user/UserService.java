@@ -1,6 +1,9 @@
 package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.user.*;
+import com.example.thesimpleeventapp.dto.user.CreateUserDto;
+import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDto;
+import com.example.thesimpleeventapp.dto.user.UserRequestDto;
 import com.example.thesimpleeventapp.model.User;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

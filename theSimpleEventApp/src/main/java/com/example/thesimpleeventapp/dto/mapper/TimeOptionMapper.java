@@ -17,7 +17,6 @@ public class TimeOptionMapper {
 
     public static TimeOption toEntity(TimeOptionDto dto) {
         TimeOption timeOption = new TimeOption();
-        timeOption.setId(dto.getId());
         timeOption.setMaxCapacity(dto.getMaxCapacity());
         timeOption.setStartTime(dto.getStartTime());
         timeOption.setEndTime(dto.getEndTime());

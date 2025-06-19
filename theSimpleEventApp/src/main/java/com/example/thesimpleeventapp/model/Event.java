@@ -27,6 +27,10 @@ public class Event {
 
     @ManyToOne()
     @JoinColumn(name = "user_id")
+    private TimeOptionType timeOptionType;
+
+    @ManyToOne()
+    @JoinColumn(name = "user_id")
     private User creator;
 
     @ManyToMany()
