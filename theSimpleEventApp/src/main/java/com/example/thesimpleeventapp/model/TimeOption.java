@@ -35,7 +35,7 @@ public class TimeOption {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 

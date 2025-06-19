@@ -2,11 +2,10 @@ package com.example.thesimpleeventapp.service.event;
 
 import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.dto.mapper.EventMapper;
+import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
 import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
-import com.example.thesimpleeventapp.model.Event;
-import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidTimeOptionException;
 import com.example.thesimpleeventapp.model.*;
 import com.example.thesimpleeventapp.repository.EventRepository;
@@ -136,19 +135,50 @@ public class EventServiceImpl implements EventService {
         Event existingEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
 
-        List<User> users = userService.getUserByIds(eventDto.getParticipantIds());
+        List<RestaurantOptionDto> test = eventDto.getRestaurantOptions();
 
-        existingEvent.setTitle(eventDto.getTitle());
-        existingEvent.setDescription(eventDto.getDescription());
-        existingEvent.setParticipants(users);
+        System.out.println("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE " + test.get(0).getName());
+
+        List<Long> participantIds = eventDto.getParticipantIds();
+        List<User> users = (participantIds != null && !participantIds.isEmpty())
+                ? userService.getUserByIds(participantIds)
+                : new ArrayList<>();
 
         User creator = existingEvent.getCreator();
         if (!users.contains(creator)) {
             users.add(0, creator);
         }
 
-        Event updatedEvent = eventRepository.save(existingEvent);
+        existingEvent.setTitle(eventDto.getTitle());
+        existingEvent.setDescription(eventDto.getDescription());
+        existingEvent.setParticipants(users);
+        List<TimeOption> timeOptions = (eventDto.getTimeOptions() != null)
+                ? eventDto.getTimeOptions().stream()
+                .map(dto -> {
+                    TimeOption option = TimeOptionMapper.toEntity(dto);
+                    option.setEvent(existingEvent);
+                    return option;
+                })
+                .toList()
+                : new ArrayList<>();
 
+        existingEvent.getTimeOptions().clear();
+        existingEvent.getTimeOptions().addAll(timeOptions);
+
+        List<RestaurantOption> restaurantOptions = (eventDto.getRestaurantOptions() != null)
+                ? eventDto.getRestaurantOptions().stream()
+                .map(dto -> {
+                    RestaurantOption option = RestaurantOptionMapper.toEntity(dto);
+                    option.setEvent(existingEvent);
+                    return option;
+                })
+                .toList()
+                : new ArrayList<>();
+
+        existingEvent.getRestaurantOptions().clear();
+        existingEvent.getRestaurantOptions().addAll(restaurantOptions);
+
+        Event updatedEvent = eventRepository.save(existingEvent);
         return EventMapper.toDto(updatedEvent);
     }
 
@@ -157,3 +187,39 @@ public class EventServiceImpl implements EventService {
         eventRepository.deleteById(eventId);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
+//        List<TimeOption> timeOptions = (timeOptionDtos != null && !timeOptionDtos.isEmpty())
+//                ? timeOptionDtos.stream()
+//                .map(timeOptionDto -> {
+//                    TimeOption option = TimeOptionMapper.toEntity(timeOptionDto);
+//                    option.setEvent(existingEvent);
+//                    return option;
+//                })
+//                .collect(Collectors.toList())
+//                : new ArrayList<>();
+//
+//        List<RestaurantOptionDto> restaurantOptionDtos = eventDto.getRestaurantOptions();
+//        List<RestaurantOption> restaurantOptions = (restaurantOptionDtos != null && !restaurantOptionDtos.isEmpty())
+//                ? restaurantOptionDtos.stream()
+//                .map(restaurantOptionDto -> {
+//                    RestaurantOption option = RestaurantOptionMapper.toEntity(restaurantOptionDto);
+//                    option.setEvent(existingEvent);
+//                    return option;
+//                })
+//                .collect(Collectors.toList())
+//                : new ArrayList<>();

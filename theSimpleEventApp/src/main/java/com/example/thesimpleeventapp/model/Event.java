@@ -34,10 +34,10 @@ public class Event {
     @ManyToMany()
     private List<User> participants;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeOption> timeOptions;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
     @OneToOne(cascade = CascadeType.ALL)
