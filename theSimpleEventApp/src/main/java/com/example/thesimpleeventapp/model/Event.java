@@ -23,6 +23,7 @@ public class Event {
     @Column(nullable = false)
     private String title;
 
+    @Column(length = 1000)
     private String description;
 
     private TimeOptionType timeOptionType;
