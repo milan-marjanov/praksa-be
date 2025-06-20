@@ -5,6 +5,10 @@ import com.example.thesimpleeventapp.dto.mapper.EventMapper;
 import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
 import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
 import com.example.thesimpleeventapp.dto.user.UserProfileDto;
+import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
+import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
+import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
+import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.dto.vote.CreateVote;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
@@ -147,8 +151,6 @@ public class EventServiceImpl implements EventService {
         Event existingEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + eventId));
 
-        List<RestaurantOptionDto> test = eventDto.getRestaurantOptions();
-
         List<Long> participantIds = eventDto.getParticipantIds();
         List<User> users = (participantIds != null && !participantIds.isEmpty())
                 ? userService.getUserByIds(participantIds)
@@ -216,7 +218,7 @@ public class EventServiceImpl implements EventService {
             } else if (vote.getTimeOption() == null || vote.getTimeOption().getId() != dto.getTimeOptionId()) {
                 Optional<TimeOption> newTimeOpt = timeOptionRepository.findById(dto.getTimeOptionId());
                 if (newTimeOpt.isEmpty()) {
-                    throw new EventNotFoundException("Time option not FOUND FIRST ONE.");
+                    throw new EventNotFoundException("Time option not found.");
                 }
                 vote.setTimeOption(newTimeOpt.get());
             }
@@ -239,7 +241,7 @@ public class EventServiceImpl implements EventService {
 
         Optional<TimeOption> timeOpt = dto.getTimeOptionId() == 0 ? Optional.empty() : timeOptionRepository.findById(dto.getTimeOptionId());
         if (dto.getTimeOptionId() != 0 && timeOpt.isEmpty()) {
-            throw new EventNotFoundException("Time option not found SECOND ONE.");
+            throw new EventNotFoundException("Time option not found.");
         }
 
         Vote newVote = new Vote();
