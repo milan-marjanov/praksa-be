@@ -51,11 +51,6 @@ public class EventController {
         return new UserEventsResponseDto(createdEvents, participantEvents);
     }
 
-    @GetMapping("/fetchAllEvents")
-    public List<EventDto> fetchAllEvents() {
-        return eventService.getAllEvents();
-    }
-
     @GetMapping("/basic")
     public List<EventBasicDto> getAllBasicEvents() {
         return eventService.getAllBasicEvents();
