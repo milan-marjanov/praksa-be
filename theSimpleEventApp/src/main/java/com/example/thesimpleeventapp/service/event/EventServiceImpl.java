@@ -112,35 +112,35 @@ public class EventServiceImpl implements EventService {
                 .votes(new ArrayList<>())
                 .build();
 
-        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
-
-        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
-            validateTimeOptions(newEvent.getTimeOptionType(), timeOptionDtos);
-
-            List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
-                    .map(TimeOptionMapper::toEntity)
-                    .toList();
-
-            timeOptionEntities.forEach(option -> option.setEvent(newEvent));
-            newEvent.getTimeOptions().addAll(timeOptionEntities);
-        }
-
-        List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
-                .map(TimeOptionMapper::toEntity)
-                .toList();
-
-        for (RestaurantOptionDto dto : eventDto.getRestaurantOptions()) {
-            RestaurantOption restaurantOption = RestaurantOption.builder()
-                    .name(dto.getName())
-                    .menuImageUrl(dto.getMenuImageUrl())
-                    .restaurantUrl(dto.getRestaurantUrl())
-                    .event(newEvent)
-                    .votes(new ArrayList<>())
-                    .build();
-            newEvent.getRestaurantOptions().add(restaurantOption);
-        }
-
-        timeOptionEntities.forEach(option -> option.setEvent(newEvent));
+//        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
+//
+//        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
+//            validateTimeOptions(newEvent.getTimeOptionType(), timeOptionDtos);
+//
+//            List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
+//                    .map(TimeOptionMapper::toEntity)
+//                    .toList();
+//
+//            timeOptionEntities.forEach(option -> option.setEvent(newEvent));
+//            newEvent.getTimeOptions().addAll(timeOptionEntities);
+//        }
+//
+//        List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
+//                .map(TimeOptionMapper::toEntity)
+//                .toList();
+//
+//        for (RestaurantOptionDto dto : eventDto.getRestaurantOptions()) {
+//            RestaurantOption restaurantOption = RestaurantOption.builder()
+//                    .name(dto.getName())
+//                    .menuImageUrl(dto.getMenuImageUrl())
+//                    .restaurantUrl(dto.getRestaurantUrl())
+//                    .event(newEvent)
+//                    .votes(new ArrayList<>())
+//                    .build();
+//            newEvent.getRestaurantOptions().add(restaurantOption);
+//        }
+//
+//        timeOptionEntities.forEach(option -> option.setEvent(newEvent));
 
         Event savedEvent = eventRepository.save(newEvent);
         return EventMapper.toDto(savedEvent);
