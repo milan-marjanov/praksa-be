@@ -5,16 +5,13 @@ import com.example.thesimpleeventapp.dto.mapper.EventMapper;
 import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
 import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
 import com.example.thesimpleeventapp.dto.user.UserProfileDto;
-import com.example.thesimpleeventapp.dto.mapper.RestaurantOptionMapper;
-import com.example.thesimpleeventapp.dto.mapper.TimeOptionMapper;
-import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
-import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.dto.vote.CreateVote;
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidTimeOptionException;
 import com.example.thesimpleeventapp.model.*;
 import com.example.thesimpleeventapp.repository.*;
+import com.example.thesimpleeventapp.service.notification.NotificationService;
 import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,15 +30,23 @@ public class EventServiceImpl implements EventService {
     private final TimeOptionRepository timeOptionRepository;
     private final RestaurantOptionRepository restaurantOptionRepository;
     private final VoteRepository voteRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, UserService userService,UserRepository userRepository,TimeOptionRepository timeOptionRepository,RestaurantOptionRepository restaurantOptionRepository,VoteRepository voteRepository) {
+    public EventServiceImpl(EventRepository eventRepository,
+                            UserService userService,
+                            UserRepository userRepository,
+                            TimeOptionRepository timeOptionRepository,
+                            RestaurantOptionRepository restaurantOptionRepository,
+                            VoteRepository voteRepository,
+                            NotificationService notificationService) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.timeOptionRepository = timeOptionRepository;
         this.restaurantOptionRepository = restaurantOptionRepository;
         this.voteRepository = voteRepository;
+        this.notificationService = notificationService;
     }
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
@@ -68,6 +73,41 @@ public class EventServiceImpl implements EventService {
 
             default:
                 throw new InvalidTimeOptionException("Unsupported time option type.");
+        }
+    }
+
+    private void processTimeOptions(List<TimeOptionDto> timeOptionDtos, Event event) {
+        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
+            validateTimeOptions(event.getTimeOptionType(), timeOptionDtos);
+
+            List<TimeOption> timeOptions = timeOptionDtos.stream()
+                    .map(TimeOptionMapper::toEntity)
+                    .peek(option -> option.setEvent(event))
+                    .toList();
+
+            event.getTimeOptions().addAll(timeOptions);
+
+            for (TimeOption option : timeOptions) {
+                timeOptionRepository.save(option);
+            }
+        }
+    }
+
+    private void processRestaurantOptions(List<RestaurantOptionDto> restaurantOptionDtos, Event event) {
+        if (restaurantOptionDtos != null && !restaurantOptionDtos.isEmpty()) {
+            for (RestaurantOptionDto dto : restaurantOptionDtos) {
+                RestaurantOption option = RestaurantOption.builder()
+                        .name(dto.getName())
+                        .menuImageUrl(dto.getMenuImageUrl())
+                        .restaurantUrl(dto.getRestaurantUrl())
+                        .event(event)
+                        .votes(new ArrayList<>())
+                        .build();
+
+                event.getRestaurantOptions().add(option);
+
+                restaurantOptionRepository.save(option);
+            }
         }
     }
 
@@ -112,37 +152,14 @@ public class EventServiceImpl implements EventService {
                 .votes(new ArrayList<>())
                 .build();
 
-        List<TimeOptionDto> timeOptionDtos = eventDto.getTimeOptions();
-
-        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
-            validateTimeOptions(newEvent.getTimeOptionType(), timeOptionDtos);
-
-            List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
-                    .map(TimeOptionMapper::toEntity)
-                    .toList();
-
-            timeOptionEntities.forEach(option -> option.setEvent(newEvent));
-            newEvent.getTimeOptions().addAll(timeOptionEntities);
-        }
-
-        List<TimeOption> timeOptionEntities = timeOptionDtos.stream()
-                .map(TimeOptionMapper::toEntity)
-                .toList();
-
-        for (RestaurantOptionDto dto : eventDto.getRestaurantOptions()) {
-            RestaurantOption restaurantOption = RestaurantOption.builder()
-                    .name(dto.getName())
-                    .menuImageUrl(dto.getMenuImageUrl())
-                    .restaurantUrl(dto.getRestaurantUrl())
-                    .event(newEvent)
-                    .votes(new ArrayList<>())
-                    .build();
-            newEvent.getRestaurantOptions().add(restaurantOption);
-        }
-
-        timeOptionEntities.forEach(option -> option.setEvent(newEvent));
-
         Event savedEvent = eventRepository.save(newEvent);
+
+        processTimeOptions(eventDto.getTimeOptions(), newEvent);
+        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
+
+        for (User participant : initialParticipants) {
+            notificationService.createNotification(newEvent, participant);
+        }
         return EventMapper.toDto(savedEvent);
     }
 

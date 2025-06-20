@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.exception;
 
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.exception.NotificationException.NotificationNotFoundException;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -66,6 +67,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidEventDataException.class)
     public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> notificationNotFoundException(NotificationNotFoundException ex){
+        return buildErrorResponse(ex, HttpStatus.OK);
     }
 
 }
