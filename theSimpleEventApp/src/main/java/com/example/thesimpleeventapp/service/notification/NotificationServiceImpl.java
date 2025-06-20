@@ -24,18 +24,22 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void markAsRead(Long notificationId, Long userId) {
+
         Notification notification = getNotificationIfOwner(notificationId, userId);
+
         notification.setRead(true);
         notificationRepository.save(notification);
     }
 
     @Override
     public void deleteNotification(Long notificationId, Long userId) {
+
         Notification notification = getNotificationIfOwner(notificationId, userId);
         notificationRepository.delete(notification);
     }
 
     private Notification getNotificationIfOwner(Long notificationId, Long userId) {
+
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found with id: " + notificationId));
 

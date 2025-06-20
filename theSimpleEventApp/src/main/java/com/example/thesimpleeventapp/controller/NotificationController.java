@@ -22,24 +22,23 @@ public class NotificationController {
     }
 
     @PutMapping("/mark-as-read/{id}")
-    public ResponseEntity<Void> markNotificationAsRead(@RequestHeader("Authorization") String authHeader,@PathVariable Long id) {
+    public ResponseEntity<Void> markNotificationAsRead(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
-        notificationService.markAsRead(id,userId);
+
+        notificationService.markAsRead(id, userId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/notifications/{id}")
-    public ResponseEntity<Void> deleteNotification(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deleteNotification(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
 
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
 
         notificationService.deleteNotification(id, userId);
-
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.ok().build();
     }
 
 }
