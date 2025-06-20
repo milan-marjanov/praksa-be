@@ -22,5 +22,5 @@ public class UpdateEventDto {
 
     private List<TimeOptionDto> timeOptions;
 
-    private List<RestaurantOption> restaurantOptions;
+    private List<RestaurantOptionDto> restaurantOptions;
 }

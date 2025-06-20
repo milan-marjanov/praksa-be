@@ -2,8 +2,8 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.mapper.UserMapper;
 import com.example.thesimpleeventapp.dto.user.*;
-import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDTO;
-import com.example.thesimpleeventapp.dto.user.UserRequestDTO;
+import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDto;
+import com.example.thesimpleeventapp.dto.user.UserRequestDto;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -58,8 +58,6 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profilePicture(user.getProfilePictureUrl())
-                .eventsCreated(user.getEventsCreated())
-                .notifications(user.getNotifications())
                 .build();
     }
 
@@ -95,8 +93,6 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(tempPassword))
                 .role(Role.USER)
                 .profilePictureUrl("https://example.com/default-profile.png")
-                .eventsCreated(new ArrayList<>())
-                .notifications(new ArrayList<>())
                 .build();
 
         User savedUser = userRepository.save(user);

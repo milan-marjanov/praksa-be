@@ -25,8 +25,6 @@ public class Event {
 
     private String description;
 
-    @ManyToOne()
-    @JoinColumn(name = "user_id")
     private TimeOptionType timeOptionType;
 
     @ManyToOne()
@@ -36,10 +34,10 @@ public class Event {
     @ManyToMany()
     private List<User> participants;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", orphanRemoval = true)
     private List<TimeOption> timeOptions;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
     @OneToOne(cascade = CascadeType.ALL)
