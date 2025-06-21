@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -28,6 +29,8 @@ public class Event {
 
     private TimeOptionType timeOptionType;
 
+    private RestaurantOptionType restaurantOptionType;
+
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User creator;
@@ -40,6 +43,9 @@ public class Event {
 
     @OneToMany(mappedBy = "event", orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
+
+    @Column(nullable = false)
+    private LocalDateTime votingDeadline;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Chat chat;
