@@ -27,6 +27,9 @@ public class Event {
     @Column(length = 1000)
     private String description;
 
+    @Column(nullable = false)
+    private LocalDateTime deadline;
+
     private TimeOptionType timeOptionType;
 
     private RestaurantOptionType restaurantOptionType;
