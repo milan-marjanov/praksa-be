@@ -34,10 +34,16 @@ public class NotificationController {
         this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping("/unread/{userId}")
-    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(@PathVariable Long userId) {
+    @GetMapping("/user")
+    public ResponseEntity<List<NotificationDto>> getUnreadNotifications(@RequestHeader("Authorization") String authHeader) {
+
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+
         List<NotificationDto> unreadNotifications = notificationService.fetchNotifications(userId);
         return ResponseEntity.ok(unreadNotifications);
+
+    }
 
 
     @PutMapping("/mark-as-read/{id}")

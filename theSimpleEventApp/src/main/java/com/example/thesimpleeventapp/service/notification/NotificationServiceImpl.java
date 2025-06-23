@@ -57,7 +57,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public List<NotificationDto> fetchNotifications(Long userId) {
-        List<Notification> notifications = notificationRepository.findByUserIdAndIsReadFalse(userId);
+        List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         return notifications.stream()
                 .map(NotificationMapper::toDto)
                 .collect(Collectors.toList());

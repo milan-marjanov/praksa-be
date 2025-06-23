@@ -37,7 +37,6 @@ public class EventServiceImpl implements EventService {
     private final NotificationService notificationService;
 
     @Autowired
-
     public EventServiceImpl(EventRepository eventRepository,
                             UserService userService,
                             UserRepository userRepository,
@@ -45,8 +44,6 @@ public class EventServiceImpl implements EventService {
                             RestaurantOptionRepository restaurantOptionRepository,
                             VoteRepository voteRepository,
                             NotificationService notificationService) {
-
-    public EventServiceImpl(EventRepository eventRepository, UserService userService, UserRepository userRepository, TimeOptionRepository timeOptionRepository, RestaurantOptionRepository restaurantOptionRepository, VoteRepository voteRepository) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.userRepository = userRepository;
@@ -55,6 +52,8 @@ public class EventServiceImpl implements EventService {
         this.voteRepository = voteRepository;
         this.notificationService = notificationService;
     }
+
+
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
         switch (optionType) {
@@ -161,8 +160,8 @@ public class EventServiceImpl implements EventService {
 
         Event savedEvent = eventRepository.save(newEvent);
 
-        processTimeOptions(eventDto.getTimeOptions(), newEvent);
-        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
+//        processTimeOptions(eventDto.getTimeOptions(), newEvent);
+//        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
 
         for (User participant : initialParticipants) {
             notificationService.createNotification(newEvent, participant);
