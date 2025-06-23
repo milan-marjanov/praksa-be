@@ -30,9 +30,6 @@ public class TimeOption {
     private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private LocalDateTime deadline;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne
