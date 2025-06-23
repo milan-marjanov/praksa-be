@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,9 @@ public class Event {
 
     @Column(length = 1000)
     private String description;
+
+//    @Column(nullable = false)
+    private LocalDateTime deadline;
 
     private TimeOptionType timeOptionType;
 

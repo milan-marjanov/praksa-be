@@ -26,4 +26,5 @@ public interface EventService {
 
     EventDetailsDto getEventDetails(long id);
 
+
 }
