@@ -15,6 +15,7 @@ import com.example.thesimpleeventapp.exception.TimeExpiredException;
 import com.example.thesimpleeventapp.model.*;
 import com.example.thesimpleeventapp.repository.*;
 import com.example.thesimpleeventapp.service.notification.NotificationService;
+import com.example.thesimpleeventapp.service.notification.VotingReminderService;
 import com.example.thesimpleeventapp.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,9 +36,17 @@ public class EventServiceImpl implements EventService {
     private final RestaurantOptionRepository restaurantOptionRepository;
     private final VoteRepository voteRepository;
     private final NotificationService notificationService;
+    private final VotingReminderService votingReminderService;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, UserService userService,UserRepository userRepository,TimeOptionRepository timeOptionRepository,RestaurantOptionRepository restaurantOptionRepository,VoteRepository voteRepository) {
+    public EventServiceImpl(EventRepository eventRepository,
+                            UserService userService,
+                            UserRepository userRepository,
+                            TimeOptionRepository timeOptionRepository,
+                            RestaurantOptionRepository restaurantOptionRepository,
+                            VoteRepository voteRepository,
+                            NotificationService notificationService,
+                            VotingReminderService votingReminderService) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.userRepository = userRepository;
@@ -45,6 +54,7 @@ public class EventServiceImpl implements EventService {
         this.restaurantOptionRepository = restaurantOptionRepository;
         this.voteRepository = voteRepository;
         this.notificationService = notificationService;
+        this.votingReminderService = votingReminderService;
     }
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
@@ -109,6 +119,17 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private void notifyUsersAboutEvent(String title, String text, List<User> users, Event updatedEvent) {
+        for (User participant : users) {
+            notificationService.createNotification(
+                    title,
+                    text,
+                    updatedEvent,
+                    participant
+            );
+        }
+    }
+
     @Override
     public List<EventDto> getAllEvents() {
         List<Event> events = Optional.of(eventRepository.findAll())
@@ -118,11 +139,6 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(EventMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Event getEventById(Long id) {
-        return null;
     }
 
     @Override
@@ -148,16 +164,19 @@ public class EventServiceImpl implements EventService {
                 .restaurantOptions(new ArrayList<>())
                 .chat(null)
                 .votes(new ArrayList<>())
+                .votingDeadline(eventDto.getVotingDeadline())
                 .build();
-
         Event savedEvent = eventRepository.save(newEvent);
 
-//        processTimeOptions(eventDto.getTimeOptions(), newEvent);
-//        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
+        processTimeOptions(eventDto.getTimeOptions(), newEvent);
+        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
 
-        for (User participant : initialParticipants) {
-            notificationService.createNotification(newEvent, participant);
-        }
+        notifyUsersAboutEvent("Event creation",
+                "You have been invited to event: " + eventDto.getTitle(),
+                initialParticipants,
+                newEvent);
+
+        votingReminderService.scheduleVotingReminder(savedEvent);
         return EventMapper.toDto(savedEvent);
     }
 
@@ -179,6 +198,7 @@ public class EventServiceImpl implements EventService {
         existingEvent.setTitle(eventDto.getTitle());
         existingEvent.setDescription(eventDto.getDescription());
         existingEvent.setParticipants(users);
+        existingEvent.setVotingDeadline(eventDto.getVotingDeadline());
         List<TimeOption> timeOptions = (eventDto.getTimeOptions() != null)
                 ? eventDto.getTimeOptions().stream()
                 .map(dto -> {
@@ -206,6 +226,8 @@ public class EventServiceImpl implements EventService {
         existingEvent.getRestaurantOptions().addAll(restaurantOptions);
 
         Event updatedEvent = eventRepository.save(existingEvent);
+        notifyUsersAboutEvent("Event update", "An event has been updated", users, updatedEvent);
+
         return EventMapper.toDto(updatedEvent);
     }
 
@@ -221,7 +243,7 @@ public class EventServiceImpl implements EventService {
         Optional<Event> eventOpt = eventRepository.findById(dto.getEventId());
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime eventDeadline = eventOpt.get().getDeadline();
+        LocalDateTime eventDeadline = eventOpt.get().getVotingDeadline();
 
         if (eventDeadline.isBefore(now)) {
             throw new TimeExpiredException("Time expired");
@@ -329,7 +351,6 @@ public class EventServiceImpl implements EventService {
                 .id(timeOption.getId())
                 .startTime(timeOption.getStartTime())
                 .endTime(timeOption.getEndTime())
-                .deadline(timeOption.getDeadline())
                 .build();
     }
 

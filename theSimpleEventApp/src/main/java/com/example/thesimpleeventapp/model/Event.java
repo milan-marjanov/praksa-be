@@ -27,10 +27,9 @@ public class Event {
     @Column(length = 1000)
     private String description;
 
-//    @Column(nullable = false)
-    private LocalDateTime deadline;
-
     private TimeOptionType timeOptionType;
+
+    private LocalDateTime votingDeadline;
 
     @ManyToOne()
     @JoinColumn(name = "user_id")

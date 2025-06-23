@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface NotificationService {
 
-    void createNotification(Event event, User user);
+    void createNotification(String title, String text, Event event, User user);
 
     List<NotificationDto> fetchNotifications(Long userId);
 

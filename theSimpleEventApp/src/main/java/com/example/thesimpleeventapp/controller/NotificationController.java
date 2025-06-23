@@ -2,22 +2,13 @@ package com.example.thesimpleeventapp.controller;
 
 
 import com.example.thesimpleeventapp.dto.notification.NotificationDto;
-import com.example.thesimpleeventapp.service.notification.NotificationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
-
 import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.service.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 
@@ -29,7 +20,6 @@ public class NotificationController {
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public NotificationController(NotificationService notificationService) {
     public NotificationController(NotificationService notificationService, JwtUtils jwtUtils) {
         this.notificationService = notificationService;
         this.jwtUtils = jwtUtils;

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
@@ -23,4 +24,6 @@ public class UpdateEventDto {
     private List<TimeOptionDto> timeOptions;
 
     private List<RestaurantOptionDto> restaurantOptions;
+
+    private LocalDateTime votingDeadline;
 }

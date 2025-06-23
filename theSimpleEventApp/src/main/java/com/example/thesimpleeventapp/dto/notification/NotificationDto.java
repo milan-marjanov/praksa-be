@@ -1,5 +1,6 @@
 package com.example.thesimpleeventapp.dto.notification;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,7 @@ public class NotificationDto {
     private String title;
     private String text;
     private LocalDateTime createdAt;
+
+    @JsonProperty("isRead")
     private boolean isRead;
 }
