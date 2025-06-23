@@ -10,7 +10,6 @@ public class TimeOptionMapper {
         dto.setMaxCapacity(timeOption.getMaxCapacity());
         dto.setStartTime(timeOption.getStartTime());
         dto.setEndTime(timeOption.getEndTime());
-        dto.setDeadline(timeOption.getDeadline());
         dto.setCreatedAt(timeOption.getCreatedAt());
         return dto;
     }
@@ -20,7 +19,6 @@ public class TimeOptionMapper {
         timeOption.setMaxCapacity(dto.getMaxCapacity());
         timeOption.setStartTime(dto.getStartTime());
         timeOption.setEndTime(dto.getEndTime());
-        timeOption.setDeadline(dto.getDeadline());
         timeOption.setCreatedAt(dto.getCreatedAt());
         return timeOption;
     }
