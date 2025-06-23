@@ -44,7 +44,7 @@ public class Event {
     @OneToMany(mappedBy = "event", orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime votingDeadline;
 
     @OneToOne(cascade = CascadeType.ALL)
