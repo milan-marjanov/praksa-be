@@ -27,9 +27,6 @@ public class Event {
     @Column(length = 1000)
     private String description;
 
-    @Column(nullable = false)
-    private LocalDateTime deadline;
-
     private TimeOptionType timeOptionType;
 
     private RestaurantOptionType restaurantOptionType;
@@ -47,7 +44,6 @@ public class Event {
     @OneToMany(mappedBy = "event", orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
-    @Column(nullable = true)
     private LocalDateTime votingDeadline;
 
     @OneToOne(cascade = CascadeType.ALL)

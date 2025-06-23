@@ -118,8 +118,8 @@ public class EventServiceImpl implements EventService {
 
         Event savedEvent = eventRepository.save(newEvent);
 
-        processTimeOptions(eventDto.getTimeOptions(), newEvent);
-        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
+//        processTimeOptions(eventDto.getTimeOptions(), newEvent);
+//        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
 
 //        for (User participant : initialParticipants) {
 //            notificationService.createNotification(newEvent, participant);
@@ -225,7 +225,7 @@ public class EventServiceImpl implements EventService {
         Optional<Event> eventOpt = eventRepository.findById(dto.getEventId());
 
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime eventDeadline = eventOpt.get().getDeadline();
+        LocalDateTime eventDeadline = eventOpt.get().getVotingDeadline();
 
         if (eventDeadline.isBefore(now)) {
             throw new TimeExpiredException("Time expired");
