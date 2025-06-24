@@ -38,10 +38,10 @@ public class Event {
     @ManyToMany()
     private List<User> participants;
 
-    @OneToMany(mappedBy = "event", orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<TimeOption> timeOptions;
 
-    @OneToMany(mappedBy = "event", orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
     private LocalDateTime votingDeadline;

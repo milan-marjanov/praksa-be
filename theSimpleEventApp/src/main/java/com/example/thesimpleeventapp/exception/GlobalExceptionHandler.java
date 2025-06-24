@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ErrorResponse> eventNotFoundException(EventNotFoundException ex) {
-        return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(ex, HttpStatus.OK);
     }
 
     @ExceptionHandler(InvalidEventDataException.class)
