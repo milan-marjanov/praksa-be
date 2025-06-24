@@ -29,6 +29,7 @@ public class EventMapper {
                 .stream()
                 .map(RestaurantOptionMapper::toDto)
                 .toList());
+        dto.setVotingDeadline(event.getVotingDeadline());
         return dto;
     }
 }

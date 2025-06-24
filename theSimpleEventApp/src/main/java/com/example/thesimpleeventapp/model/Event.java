@@ -29,6 +29,8 @@ public class Event {
 
     private TimeOptionType timeOptionType;
 
+    private LocalDateTime votingDeadline;
+  
     private RestaurantOptionType restaurantOptionType;
 
     @ManyToOne()

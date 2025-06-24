@@ -24,4 +24,5 @@ public class EventDto {
     private TimeOptionType timeOptionType;
     private RestaurantOptionType restaurantOptionType;
     private List<RestaurantOptionDto> restaurantOptions;
+    private LocalDateTime votingDeadline;
 }
