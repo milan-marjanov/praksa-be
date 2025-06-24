@@ -25,6 +25,8 @@ public class EventDetailsDto {
 
     private String description;
 
+    private long creatorId;
+
     private List<UserProfileDto> participants;
 
     private LocalDateTime votingDeadline;

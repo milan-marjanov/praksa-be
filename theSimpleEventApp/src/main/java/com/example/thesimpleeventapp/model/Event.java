@@ -29,11 +29,12 @@ public class Event {
 
     private TimeOptionType timeOptionType;
 
+    @Column(nullable = true)
     private LocalDateTime votingDeadline;
   
     private RestaurantOptionType restaurantOptionType;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User creator;
 
@@ -51,5 +52,8 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<Vote> votes;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Notification> notifications;
 
 }

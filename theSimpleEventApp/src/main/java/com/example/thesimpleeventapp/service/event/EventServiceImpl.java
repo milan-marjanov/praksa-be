@@ -18,6 +18,7 @@ import com.example.thesimpleeventapp.repository.*;
 import com.example.thesimpleeventapp.service.notification.NotificationService;
 import com.example.thesimpleeventapp.service.notification.VotingReminderService;
 import com.example.thesimpleeventapp.service.user.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,7 @@ public class EventServiceImpl implements EventService {
     private final VoteRepository voteRepository;
     private final NotificationService notificationService;
     private final VotingReminderService votingReminderService;
+    private final NotificationRepository notificationRepository;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
@@ -49,7 +51,8 @@ public class EventServiceImpl implements EventService {
                             RestaurantOptionRepository restaurantOptionRepository,
                             VoteRepository voteRepository,
                             NotificationService notificationService,
-                            VotingReminderService votingReminderService) {
+                            VotingReminderService votingReminderService,
+                            NotificationRepository notificationRepository) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.userRepository = userRepository;
@@ -58,6 +61,7 @@ public class EventServiceImpl implements EventService {
         this.voteRepository = voteRepository;
         this.notificationService = notificationService;
         this.votingReminderService = votingReminderService;
+        this.notificationRepository = notificationRepository;
     }
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
@@ -248,7 +252,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public void deleteEvent(Long eventId) {
+        notificationRepository.deleteByEventId(eventId);
         eventRepository.deleteById(eventId);
     }
 
@@ -359,6 +365,7 @@ public class EventServiceImpl implements EventService {
                 .id(event.getId())
                 .title(event.getTitle())
                 .description(event.getDescription())
+                .creatorId(event.getCreator().getId())
                 .participants(participants)
                 .timeOptions(timeOptions)
                 .restaurantOptions(restaurantOptions)

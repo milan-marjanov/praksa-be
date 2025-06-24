@@ -33,11 +33,13 @@ public class VotingReminderService {
     }
 
     public void scheduleVotingReminder(Event event) {
-        LocalDateTime reminderTime = event.getVotingDeadline().minusHours(24);
-        Duration delay = Duration.between(LocalDateTime.now(), reminderTime);
-        if (!delay.isNegative()) {
-            taskScheduler.schedule(() -> sendVotingReminder(event),
-                    Date.from(reminderTime.atZone(ZoneId.systemDefault()).toInstant()));
+        if(event.getVotingDeadline() != null) {
+            LocalDateTime reminderTime = event.getVotingDeadline().minusHours(24);
+            Duration delay = Duration.between(LocalDateTime.now(), reminderTime);
+            if (!delay.isNegative()) {
+                taskScheduler.schedule(() -> sendVotingReminder(event),
+                        Date.from(reminderTime.atZone(ZoneId.systemDefault()).toInstant()));
+            }
         }
     }
 
