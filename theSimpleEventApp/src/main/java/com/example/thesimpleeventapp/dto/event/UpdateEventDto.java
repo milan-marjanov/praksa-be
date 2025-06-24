@@ -31,7 +31,5 @@ public class UpdateEventDto {
 
     private List<RestaurantOptionDto> restaurantOptions;
 
-    private LocalDateTime votingDeadline;
-
     private RestaurantOptionType restaurantOptionType;
 }

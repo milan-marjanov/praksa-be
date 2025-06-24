@@ -46,8 +46,6 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
-    private LocalDateTime votingDeadline;
-
     @OneToOne(cascade = CascadeType.ALL)
     private Chat chat;
 

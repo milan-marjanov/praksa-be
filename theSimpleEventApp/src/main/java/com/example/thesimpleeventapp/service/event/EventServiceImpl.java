@@ -135,10 +135,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventDto> getAllEvents() {
-        List<Event> events = Optional.of(eventRepository.findAll())
-                .filter(list -> !list.isEmpty())
-                .orElseThrow(() -> new EventNotFoundException("No events found"));
-
+        List<Event> events = eventRepository.findAll();
         return events.stream()
                 .map(EventMapper::toDto)
                 .collect(Collectors.toList());
@@ -183,8 +180,6 @@ public class EventServiceImpl implements EventService {
                 newEvent);
 
         votingReminderService.scheduleVotingReminder(savedEvent);
-
-        Event savedEvent = eventRepository.save(newEvent);
 
         processTimeOptions(eventDto.getTimeOptions(), newEvent);
         processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
@@ -252,43 +247,10 @@ public class EventServiceImpl implements EventService {
         }
         existing.getRestaurantOptions().clear();
         existing.getRestaurantOptions().addAll(mergedRests);
-        existingEvent.setTitle(eventDto.getTitle());
-        existingEvent.setDescription(eventDto.getDescription());
-        existingEvent.setParticipants(users);
-        existingEvent.setVotingDeadline(eventDto.getVotingDeadline());
-        List<TimeOption> timeOptions = (eventDto.getTimeOptions() != null)
-                ? eventDto.getTimeOptions().stream()
-                .map(dto -> {
-                    TimeOption option = TimeOptionMapper.toEntity(dto);
-                    option.setEvent(existingEvent);
-                    return timeOptionRepository.save(option);
-                })
-                .toList()
-                : new ArrayList<>();
-
-        existingEvent.getTimeOptions().clear();
-        existingEvent.getTimeOptions().addAll(timeOptions);
-
-        List<RestaurantOption> restaurantOptions = (eventDto.getRestaurantOptions() != null)
-                ? eventDto.getRestaurantOptions().stream()
-                .map(dto -> {
-                    RestaurantOption option = RestaurantOptionMapper.toEntity(dto);
-                    option.setEvent(existingEvent);
-                    return restaurantOptionRepository.save(option);
-                })
-                .toList()
-                : new ArrayList<>();
-
-        existingEvent.getRestaurantOptions().clear();
-        existingEvent.getRestaurantOptions().addAll(restaurantOptions);
-
-        Event updatedEvent = eventRepository.save(existingEvent);
+        Event updatedEvent = eventRepository.save(existing);
         notifyUsersAboutEvent("Event update", "An event has been updated", users, updatedEvent);
 
         return EventMapper.toDto(updatedEvent);
-      
-        Event saved = eventRepository.save(existing);
-        return EventMapper.toDto(saved);
     }
 
     @Override
@@ -492,40 +454,5 @@ public class EventServiceImpl implements EventService {
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .build();
-    }
-
-    private void processTimeOptions(List<TimeOptionDto> timeOptionDtos, Event event) {
-        if (timeOptionDtos != null && !timeOptionDtos.isEmpty()) {
-            validateTimeOptions(event.getTimeOptionType(), timeOptionDtos);
-
-            List<TimeOption> timeOptions = timeOptionDtos.stream()
-                    .map(TimeOptionMapper::toEntity)
-                    .peek(option -> option.setEvent(event))
-                    .toList();
-
-            event.getTimeOptions().addAll(timeOptions);
-
-            for (TimeOption option : timeOptions) {
-                timeOptionRepository.save(option);
-            }
-        }
-    }
-
-    private void processRestaurantOptions(List<RestaurantOptionDto> restaurantOptionDtos, Event event) {
-        if (restaurantOptionDtos != null && !restaurantOptionDtos.isEmpty()) {
-            for (RestaurantOptionDto dto : restaurantOptionDtos) {
-                RestaurantOption option = RestaurantOption.builder()
-                        .name(dto.getName())
-                        .menuImageUrl(dto.getMenuImageUrl())
-                        .restaurantUrl(dto.getRestaurantUrl())
-                        .event(event)
-                        .votes(new ArrayList<>())
-                        .build();
-
-                event.getRestaurantOptions().add(option);
-
-                restaurantOptionRepository.save(option);
-            }
-        }
     }
 }
