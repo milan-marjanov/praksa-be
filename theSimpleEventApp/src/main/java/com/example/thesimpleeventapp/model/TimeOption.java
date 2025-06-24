@@ -36,7 +36,7 @@ public class TimeOption {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToMany(mappedBy = "timeOption", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "timeOption",orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Vote> votes;
 
 }

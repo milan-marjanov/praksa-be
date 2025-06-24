@@ -17,10 +17,11 @@ public class Vote {
     @Column(name = "id", nullable = false)
     private long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 

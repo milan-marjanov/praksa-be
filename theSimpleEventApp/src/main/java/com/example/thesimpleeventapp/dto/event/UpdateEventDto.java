@@ -1,6 +1,8 @@
 package com.example.thesimpleeventapp.dto.event;
 
 import com.example.thesimpleeventapp.model.RestaurantOption;
+import com.example.thesimpleeventapp.model.RestaurantOptionType;
+import com.example.thesimpleeventapp.model.TimeOptionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +23,15 @@ public class UpdateEventDto {
 
     private List<Long> participantIds;
 
+    private LocalDateTime votingDeadline;
+
     private List<TimeOptionDto> timeOptions;
+
+    private TimeOptionType timeOptionType;
 
     private List<RestaurantOptionDto> restaurantOptions;
 
     private LocalDateTime votingDeadline;
+
+    private RestaurantOptionType restaurantOptionType;
 }

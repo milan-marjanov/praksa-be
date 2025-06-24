@@ -5,6 +5,7 @@ import com.example.thesimpleeventapp.dto.event.CreateEventDto;
 import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.event.UpdateEventDto;
 import com.example.thesimpleeventapp.dto.vote.CreateVote;
+import com.example.thesimpleeventapp.dto.vote.VoteDto;
 import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.dto.event.*;
 import com.example.thesimpleeventapp.dto.event.UserEventsResponseDto;
@@ -56,8 +57,10 @@ public class EventController {
         return eventService.getAllBasicEvents();
     }
     @GetMapping("/{id}")
-    public ResponseEntity<EventDetailsDto> getEventDetails(@PathVariable Long id) {
-        EventDetailsDto eventDetails = eventService.getEventDetails(id);
+    public ResponseEntity<EventDetailsDto> getEventDetails(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtUtils.extractUserId(token);
+        EventDetailsDto eventDetails = eventService.getEventDetails(id, userId);
         return ResponseEntity.ok(eventDetails);
     }
 
@@ -67,11 +70,11 @@ public class EventController {
     }
 
     @PostMapping("/voting")
-    public ResponseEntity<Boolean> submitVote(@RequestHeader("Authorization") String authHeader,@Valid @RequestBody CreateVote voteRequestDto) {
+    public ResponseEntity<VoteDto> submitVote(@RequestHeader("Authorization") String authHeader,@Valid @RequestBody CreateVote voteRequestDto) {
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtUtils.extractUserId(token);
-        Boolean message = eventService.voteForEvent(voteRequestDto,userId);
-        return ResponseEntity.ok(message);
+        VoteDto vote = eventService.voteForEvent(voteRequestDto,userId);
+        return ResponseEntity.ok(vote);
     }
 
     @PatchMapping("/updateEvent/{eventId}")

@@ -2,8 +2,6 @@ package com.example.thesimpleeventapp.service.user;
 
 import com.example.thesimpleeventapp.dto.mapper.UserMapper;
 import com.example.thesimpleeventapp.dto.user.*;
-import com.example.thesimpleeventapp.dto.user.PasswordChangeRequestDto;
-import com.example.thesimpleeventapp.dto.user.UserRequestDto;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -35,13 +33,10 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final UserRepository userRepository;
-
-    private final EmailService emailService;
-
     private static final String UPLOAD_DIR = "images/";
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
@@ -217,7 +212,7 @@ public class UserServiceImpl implements UserService {
 
         String filename = user.getProfilePictureUrl();
         if (filename == null || filename.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
         }
 
 
@@ -227,8 +222,6 @@ public class UserServiceImpl implements UserService {
         Resource resource = new UrlResource(filePath.toUri());
 
         if (resource.exists() && resource.isReadable()) {
-            System.out.println(resource.exists());
-            System.out.println(resource.isReadable());
             MediaType contentType = MediaTypeFactory.getMediaType(resource)
                     .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
@@ -236,7 +229,7 @@ public class UserServiceImpl implements UserService {
                     .contentType(contentType)
                     .body(resource);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
         }
     }
 

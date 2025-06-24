@@ -19,6 +19,8 @@ public class EventMapper {
                 .collect(Collectors.toList());
         dto.setParticipants(participantDto);
         dto.setTimeOptionType(event.getTimeOptionType());
+        dto.setRestaurantOptionType(event.getRestaurantOptionType());
+        dto.setVotingDeadline(event.getVotingDeadline());
         dto.setTimeOptions(event.getTimeOptions()
                 .stream()
                 .map(TimeOptionMapper::toDto)

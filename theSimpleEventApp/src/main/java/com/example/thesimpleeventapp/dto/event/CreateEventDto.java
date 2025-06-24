@@ -1,5 +1,6 @@
 package com.example.thesimpleeventapp.dto.event;
 
+import com.example.thesimpleeventapp.model.RestaurantOptionType;
 import com.example.thesimpleeventapp.model.TimeOptionType;
 import lombok.*;
 
@@ -17,8 +18,10 @@ public class CreateEventDto {
     private String description;
     private Long creatorId;
     private List<Long> participantIds;
+    private LocalDateTime votingDeadline;
     private TimeOptionType timeOptionType;
     private List<TimeOptionDto> timeOptions;
+    private RestaurantOptionType restaurantOptionType;
     private List<RestaurantOptionDto> restaurantOptions;
     private LocalDateTime votingDeadline;
 }

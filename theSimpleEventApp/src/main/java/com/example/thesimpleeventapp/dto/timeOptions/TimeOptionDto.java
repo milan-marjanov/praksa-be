@@ -15,5 +15,5 @@ public class TimeOptionDto {
 
     private LocalDateTime endTime;
 
-    private LocalDateTime deadline;
+    private LocalDateTime votingDeadline;
 }

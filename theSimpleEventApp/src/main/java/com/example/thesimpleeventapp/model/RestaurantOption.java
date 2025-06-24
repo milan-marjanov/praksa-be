@@ -31,6 +31,6 @@ public class RestaurantOption {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @OneToMany(mappedBy = "restaurantOption", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "restaurantOption", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Vote> votes;
 }
