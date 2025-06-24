@@ -1,11 +1,14 @@
 package com.example.thesimpleeventapp.service.notification;
 
+import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.VoteRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
+import com.example.thesimpleeventapp.service.event.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -18,35 +21,36 @@ import java.util.List;
 @Service
 public class VotingReminderService {
 
-    private final TaskScheduler taskScheduler;
     private final VoteRepository voteRepository;
+    private final EventService eventService;
     private final EmailService emailService;
 
 
     @Autowired
-    public VotingReminderService(VoteRepository voteRepository, EmailService emailService) {
+    public VotingReminderService(VoteRepository voteRepository, EventService eventService, EmailService emailService) {
         this.voteRepository = voteRepository;
+        this.eventService = eventService;
         this.emailService = emailService;
-        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.initialize();
-        this.taskScheduler = scheduler;
     }
 
-    public void scheduleVotingReminder(Event event) {
-        if(event.getVotingDeadline() != null) {
-            LocalDateTime reminderTime = event.getVotingDeadline().minusHours(24);
-            Duration delay = Duration.between(LocalDateTime.now(), reminderTime);
-            if (!delay.isNegative()) {
-                taskScheduler.schedule(() -> sendVotingReminder(event),
-                        Date.from(reminderTime.atZone(ZoneId.systemDefault()).toInstant()));
+    @Scheduled(fixedRateString = "3h")
+    public void checkVotingDeadlinesAndNotify(){
+        List<EventDto> allEvents = eventService.getAllEvents();
+        LocalDateTime currentTime = LocalDateTime.now();
+        for (EventDto eventDto : allEvents){
+            if (eventDto.getVotingDeadline() != null){
+                Duration timeUntilDeadline = Duration.between(currentTime, eventDto.getVotingDeadline());
+                if (!timeUntilDeadline.isNegative() && timeUntilDeadline.toHours() <= 24){
+                    notifyUserWhoDidNotVote(eventDto);
+                }
             }
         }
     }
 
-    private void sendVotingReminder(Event event) {
-        List<User> usersToNotify = voteRepository.findUsersWhoDidNotVote(event.getId());
-        for (User user : usersToNotify) {
-            emailService.sendVotingReminderEmail(user, event);
+    private void notifyUserWhoDidNotVote(EventDto eventDto){
+        List<User> userToNotify = voteRepository.findUsersWhoDidNotVote(eventDto.getId());
+        for (User user : userToNotify){
+            emailService.sendVotingReminderEmail(user, eventDto);
         }
     }
 }

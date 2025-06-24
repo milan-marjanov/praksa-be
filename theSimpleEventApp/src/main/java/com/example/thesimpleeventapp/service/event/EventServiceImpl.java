@@ -40,7 +40,6 @@ public class EventServiceImpl implements EventService {
     private final RestaurantOptionRepository restaurantOptionRepository;
     private final VoteRepository voteRepository;
     private final NotificationService notificationService;
-    private final VotingReminderService votingReminderService;
     private final NotificationRepository notificationRepository;
 
     @Autowired
@@ -51,7 +50,6 @@ public class EventServiceImpl implements EventService {
                             RestaurantOptionRepository restaurantOptionRepository,
                             VoteRepository voteRepository,
                             NotificationService notificationService,
-                            VotingReminderService votingReminderService,
                             NotificationRepository notificationRepository) {
         this.eventRepository = eventRepository;
         this.userService = userService;
@@ -60,7 +58,6 @@ public class EventServiceImpl implements EventService {
         this.restaurantOptionRepository = restaurantOptionRepository;
         this.voteRepository = voteRepository;
         this.notificationService = notificationService;
-        this.votingReminderService = votingReminderService;
         this.notificationRepository = notificationRepository;
     }
 
@@ -180,7 +177,6 @@ public class EventServiceImpl implements EventService {
                 initialParticipants,
                 newEvent);
 
-        votingReminderService.scheduleVotingReminder(savedEvent);
         processTimeOptions(eventDto.getTimeOptions(), newEvent);
         processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
         return EventMapper.toDto(savedEvent);

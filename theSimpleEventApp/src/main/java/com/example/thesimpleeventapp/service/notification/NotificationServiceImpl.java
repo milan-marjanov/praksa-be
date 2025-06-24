@@ -63,7 +63,6 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void deleteNotification(Long notificationId, Long userId) {
-
         Notification notification = getNotificationIfOwner(notificationId, userId);
         notificationRepository.delete(notification);
     }

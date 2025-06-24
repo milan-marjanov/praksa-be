@@ -1,5 +1,6 @@
 package com.example.thesimpleeventapp.service.email;
 
+import com.example.thesimpleeventapp.dto.event.EventDto;
 import com.example.thesimpleeventapp.dto.notification.NotificationDto;
 import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.User;
@@ -53,14 +54,14 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendVotingReminderEmail(User user, Event event) {
+    public void sendVotingReminderEmail(User user, EventDto eventDto) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Voting Deadline Approaching!");
         String eventLink = appBaseUrl + "/api/events/" + user.getId();
         String emailContent = "Hello " + user.getFirstName() + ",\n\n" +
-                "Reminder: The voting deadline for the event \"" + event.getTitle() + "\" is approaching!\n\n" +
-                "Please cast your vote before: " + event.getVotingDeadline() + "\n" +
+                "Reminder: The voting deadline for the event \"" + eventDto.getTitle() + "\" is approaching!\n\n" +
+                "Please cast your vote before: " + eventDto.getVotingDeadline() + "\n" +
                 "Event link: " + eventLink + "\n\n" +
                 "Thank you,\nYour Event App Team";
         message.setText(emailContent);
