@@ -7,6 +7,5 @@ import com.example.thesimpleeventapp.model.User;
 public interface EmailService {
     void sendUserCreationEmail(User user, String password);
     void sendUserNotificationEmail(User user, NotificationDto notificationDto);
-
     void sendVotingReminderEmail(User user, Event event);
 }

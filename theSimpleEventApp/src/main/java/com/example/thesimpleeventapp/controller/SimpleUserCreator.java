@@ -21,18 +21,18 @@ public class SimpleUserCreator implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         User user = new User();
-        user.setEmail("branislav.mirosavljev01@gmail.com");
+        user.setEmail("test@example.com");
         user.setPassword(passwordEncoder.encode("password123"));
-        user.setFirstName("Bane");
-        user.setLastName("Korisnik");
+        user.setFirstName("Test");
+        user.setLastName("User");
         user.setRole(Role.USER);
         userRepository.save(user);
 
         User user2 = new User();
-        user2.setEmail("mirosavljev01@gmail.com");
+        user2.setEmail("admin@example.com");
         user2.setPassword(passwordEncoder.encode("password123"));
-        user2.setFirstName("Branislav");
-        user2.setLastName("Mirosavljev");
+        user2.setFirstName("Test");
+        user2.setLastName("Admin");
         user2.setRole(Role.ADMIN);
         userRepository.save(user2);
 

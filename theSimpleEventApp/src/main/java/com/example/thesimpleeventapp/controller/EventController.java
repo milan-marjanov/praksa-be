@@ -56,6 +56,7 @@ public class EventController {
     public List<EventBasicDto> getAllBasicEvents() {
         return eventService.getAllBasicEvents();
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<EventDetailsDto> getEventDetails(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
         String token = authHeader.replace("Bearer ", "");

@@ -36,7 +36,6 @@ public class NotificationController {
 
     }
 
-
     @PutMapping("/mark-as-read/{id}")
     public ResponseEntity<Void> markNotificationAsRead(@RequestHeader("Authorization") String authHeader, @PathVariable Long id) {
 
@@ -55,7 +54,5 @@ public class NotificationController {
 
         notificationService.deleteNotification(id, userId);
         return ResponseEntity.ok().build();
-
     }
-
 }

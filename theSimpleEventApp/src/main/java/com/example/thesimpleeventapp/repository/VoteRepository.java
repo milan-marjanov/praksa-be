@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VoteRepository extends JpaRepository<Vote, Long> {
-
     Optional<Vote> findByUserIdAndEventId(Long userId, Long eventId);
 
     @Query("SELECT u FROM Event e JOIN e.participants u " +
@@ -19,5 +18,4 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<User> findUsersWhoDidNotVote(@Param("eventId") Long eventId);
 
     List<Vote> findByEventId(long id);
-
 }

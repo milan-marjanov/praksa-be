@@ -52,10 +52,8 @@ public class JwtUtils {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-
         return claims;
     }
-
 
     public String extractUsername(String token) {
         return extractClaims(token, Claims::getSubject);

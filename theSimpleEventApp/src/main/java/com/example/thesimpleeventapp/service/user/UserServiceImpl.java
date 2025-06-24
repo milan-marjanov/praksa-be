@@ -214,11 +214,7 @@ public class UserServiceImpl implements UserService {
         if (filename == null || filename.isEmpty()) {
             return ResponseEntity.ok().build();
         }
-
-
         Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
-
-
         Resource resource = new UrlResource(filePath.toUri());
 
         if (resource.exists() && resource.isReadable()) {
@@ -235,12 +231,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteImage(Long id) {
-
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         user.setProfilePictureUrl(null);
         userRepository.save(user);
-
     }
-
 }

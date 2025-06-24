@@ -3,7 +3,6 @@ package com.example.thesimpleeventapp.dto.event;
 
 import com.example.thesimpleeventapp.dto.user.UserProfileDto;
 import com.example.thesimpleeventapp.dto.vote.VoteDto;
-import com.example.thesimpleeventapp.model.RestaurantOption;
 import com.example.thesimpleeventapp.model.RestaurantOptionType;
 import com.example.thesimpleeventapp.model.TimeOptionType;
 import lombok.AllArgsConstructor;

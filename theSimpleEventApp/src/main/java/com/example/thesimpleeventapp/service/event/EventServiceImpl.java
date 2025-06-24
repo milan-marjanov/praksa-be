@@ -169,21 +169,16 @@ public class EventServiceImpl implements EventService {
                 .votes(new ArrayList<>())
                 .votingDeadline(eventDto.getVotingDeadline())
                 .build();
+
         Event savedEvent = eventRepository.save(newEvent);
-
-        processTimeOptions(eventDto.getTimeOptions(), newEvent);
-        processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
-
         notifyUsersAboutEvent("Event creation",
                 "You have been invited to event: " + eventDto.getTitle(),
                 initialParticipants,
                 newEvent);
 
         votingReminderService.scheduleVotingReminder(savedEvent);
-
         processTimeOptions(eventDto.getTimeOptions(), newEvent);
         processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
-
         return EventMapper.toDto(savedEvent);
     }
 
@@ -249,7 +244,6 @@ public class EventServiceImpl implements EventService {
         existing.getRestaurantOptions().addAll(mergedRests);
         Event updatedEvent = eventRepository.save(existing);
         notifyUsersAboutEvent("Event update", "An event has been updated", users, updatedEvent);
-
         return EventMapper.toDto(updatedEvent);
     }
 
@@ -292,7 +286,6 @@ public class EventServiceImpl implements EventService {
                 vote.setRestaurantOption(ro);
             }
 
-
             if (vote.getTimeOption() == null && vote.getRestaurantOption() == null) {
 
                 voteRepository.delete(vote);
@@ -322,7 +315,6 @@ public class EventServiceImpl implements EventService {
         } else {
             newVote.setTimeOption(null);
         }
-
 
         if (dto.getRestaurantOptionId() != null) {
             Optional<RestaurantOption> restaurantOption = restaurantOptionRepository.findById(dto.getRestaurantOptionId());
@@ -410,7 +402,6 @@ public class EventServiceImpl implements EventService {
         dto.setCurrentVote(
                 existing.map(VoteMapper::toDto).orElse(null)
         );
-
         return dto;
     }
 

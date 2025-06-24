@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
-
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
@@ -30,7 +29,6 @@ public class NotificationServiceImpl implements NotificationService {
         this.userRepository = userRepository;
         this.emailService = emailService;
     }
-
 
     @Override
     public void createNotification(String title, String text, Event event, User user) {
@@ -82,7 +80,6 @@ public class NotificationServiceImpl implements NotificationService {
         if (!userNotification.equals(user)) {
             throw new SecurityException("User is not authorized to perform this action on the notification.");
         }
-
         return notification;
     }
 }

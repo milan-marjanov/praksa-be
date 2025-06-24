@@ -33,7 +33,6 @@ public class AuthService {
                             authRequest.getPassword()
                     )
             );
-
             User user = userRepository.findByEmail(authRequest.getEmail()).orElseThrow();
             String jwt = jwtUtils.generateToken(user);
 

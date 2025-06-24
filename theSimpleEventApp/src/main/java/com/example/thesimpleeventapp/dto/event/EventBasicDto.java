@@ -6,10 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class EventBasicDto {
-
     private Long id;
-
     private String title;
-
     private String description;
 }
