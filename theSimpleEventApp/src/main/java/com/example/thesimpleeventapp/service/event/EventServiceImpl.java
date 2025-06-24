@@ -366,6 +366,7 @@ public class EventServiceImpl implements EventService {
                 .title(event.getTitle())
                 .description(event.getDescription())
                 .creatorId(event.getCreator().getId())
+                .votingDeadline(event.getVotingDeadline())
                 .participants(participants)
                 .timeOptions(timeOptions)
                 .restaurantOptions(restaurantOptions)
