@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +49,7 @@ public class NotificationServiceImpl implements NotificationService {
     public List<NotificationDto> fetchNotifications(Long userId) {
         List<Notification> notifications = notificationRepository.findAllByUserId(userId);
         return notifications.stream()
+                .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .map(NotificationMapper::toDto)
                 .collect(Collectors.toList());
     }
