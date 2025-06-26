@@ -142,6 +142,74 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public EventDetailsDto getEventDetails(long id, long userId) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
+
+        List<UserProfileDto> participants = event.getParticipants().stream()
+                .map(this::convertUserToDto)
+                .collect(Collectors.toList());
+
+        List<TimeOptionDto> timeOptions = event.getTimeOptions().stream()
+                .map(this::convertTimeOptionToDto)
+                .collect(Collectors.toList());
+
+        List<RestaurantOptionDto> restaurantOptions = event.getRestaurantOptions().stream()
+                .map(this::convertRestaurantToDto)
+                .collect(Collectors.toList());
+
+        EventDetailsDto dto = EventDetailsDto.builder()
+                .id(event.getId())
+                .title(event.getTitle())
+                .description(event.getDescription())
+                .creatorId(event.getCreator().getId())
+                .votingDeadline(event.getVotingDeadline())
+                .participants(participants)
+                .timeOptions(timeOptions)
+                .restaurantOptions(restaurantOptions)
+                .timeOptionType(event.getTimeOptionType())
+                .restaurantOptionType(event.getRestaurantOptionType())
+                .currentVote(null)
+                .build();
+
+        List<Vote> allVotes = voteRepository.findByEventId(id);
+
+        Map<Long, List<Vote>> votesByTime = allVotes.stream()
+                .filter(v -> v.getTimeOption() != null)
+                .collect(Collectors.groupingBy(v -> v.getTimeOption().getId()));
+
+        for (TimeOptionDto to : dto.getTimeOptions()) {
+            List<Vote> vs = votesByTime.getOrDefault(to.getId(), List.of());
+            to.setVotesCount(vs.size());
+            to.setReservedCount(vs.size());
+            to.setVotedUsers(
+                    vs.stream()
+                            .map(v -> convertUserToDto(v.getUser()))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        Map<Long, List<Vote>> votesByRest = allVotes.stream()
+                .filter(v -> v.getRestaurantOption() != null)
+                .collect(Collectors.groupingBy(v -> v.getRestaurantOption().getId()));
+
+        for (RestaurantOptionDto ro : dto.getRestaurantOptions()) {
+            List<Vote> vs = votesByRest.getOrDefault(ro.getId(), List.of());
+            ro.setVotesCount(vs.size());
+            ro.setVotedUsers(
+                    vs.stream()
+                            .map(v -> convertUserToDto(v.getUser()))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        Optional<Vote> existing = voteRepository.findByUserIdAndEventId(userId, id);
+        dto.setCurrentVote(
+                existing.map(VoteMapper::toDto).orElse(null)
+        );
+        return dto;
+    }
 
     @Override
     public EventDto createEvent(CreateEventDto eventDto) {
@@ -332,84 +400,6 @@ public class EventServiceImpl implements EventService {
         return VoteMapper.toDto(savedNew);
     }
 
-    @Override
-    public List<EventBasicDto> getAllBasicEvents() {
-        List<Event> events = eventRepository.findAll();
-        return events.stream()
-                .map(this::convertToBasicDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public EventDetailsDto getEventDetails(long id, long userId) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
-
-        List<UserProfileDto> participants = event.getParticipants().stream()
-                .map(this::convertUserToDto)
-                .collect(Collectors.toList());
-
-        List<TimeOptionDto> timeOptions = event.getTimeOptions().stream()
-                .map(this::convertTimeOptionToDto)
-                .collect(Collectors.toList());
-
-        List<RestaurantOptionDto> restaurantOptions = event.getRestaurantOptions().stream()
-                .map(this::convertRestaurantToDto)
-                .collect(Collectors.toList());
-
-        EventDetailsDto dto = EventDetailsDto.builder()
-                .id(event.getId())
-                .title(event.getTitle())
-                .description(event.getDescription())
-                .creatorId(event.getCreator().getId())
-                .votingDeadline(event.getVotingDeadline())
-                .participants(participants)
-                .timeOptions(timeOptions)
-                .restaurantOptions(restaurantOptions)
-                .timeOptionType(event.getTimeOptionType())
-                .restaurantOptionType(event.getRestaurantOptionType())
-                .currentVote(null)
-                .build();
-
-        List<Vote> allVotes = voteRepository.findByEventId(id);
-
-        Map<Long, List<Vote>> votesByTime = allVotes.stream()
-                .filter(v -> v.getTimeOption() != null)
-                .collect(Collectors.groupingBy(v -> v.getTimeOption().getId()));
-
-        for (TimeOptionDto to : dto.getTimeOptions()) {
-            List<Vote> vs = votesByTime.getOrDefault(to.getId(), List.of());
-            to.setVotesCount(vs.size());
-            to.setReservedCount(vs.size());
-            to.setVotedUsers(
-                    vs.stream()
-                            .map(v -> convertUserToDto(v.getUser()))
-                            .collect(Collectors.toList())
-            );
-        }
-
-        Map<Long, List<Vote>> votesByRest = allVotes.stream()
-                .filter(v -> v.getRestaurantOption() != null)
-                .collect(Collectors.groupingBy(v -> v.getRestaurantOption().getId()));
-
-        for (RestaurantOptionDto ro : dto.getRestaurantOptions()) {
-            List<Vote> vs = votesByRest.getOrDefault(ro.getId(), List.of());
-            ro.setVotesCount(vs.size());
-            ro.setVotedUsers(
-                    vs.stream()
-                            .map(v -> convertUserToDto(v.getUser()))
-                            .collect(Collectors.toList())
-            );
-        }
-
-        Optional<Vote> existing = voteRepository.findByUserIdAndEventId(userId, id);
-        dto.setCurrentVote(
-                existing.map(VoteMapper::toDto).orElse(null)
-        );
-        return dto;
-    }
-
-
     private UserProfileDto convertUserToDto(User user) {
         return UserProfileDto.builder()
                 .id(user.getId())
@@ -440,14 +430,6 @@ public class EventServiceImpl implements EventService {
                 .restaurantUrl(restaurantOption.getRestaurantUrl())
                 .votesCount(0)
                 .votedUsers(new ArrayList<>())
-                .build();
-    }
-
-    private EventBasicDto convertToBasicDto(Event event) {
-        return EventBasicDto.builder()
-                .id(event.getId())
-                .title(event.getTitle())
-                .description(event.getDescription())
                 .build();
     }
 }

@@ -8,19 +8,24 @@ import com.example.thesimpleeventapp.model.Event;
 import java.util.List;
 
 public interface EventService {
+
     List<EventDto> getAllEvents();
+
+    EventDetailsDto getEventDetails(long eventId, long userId);
 
     EventDto createEvent(CreateEventDto eventDto);
 
     EventDto updateEvent(UpdateEventDto eventDto, Long eventId);
 
-    void deleteEvent(Long eventId);
-
     VoteDto voteForEvent(CreateVote dto, Long userId);
 
-    List<EventBasicDto> getAllBasicEvents();
+    void deleteEvent(Long eventId);
 
-    EventDetailsDto getEventDetails(long eventId, long userId);
+
+
+
+
+
 
 
 }
