@@ -27,6 +27,8 @@ public class EventDetailsDto {
 
     private long creatorId;
 
+    private long chatId;
+
     private List<UserProfileDto> participants;
 
     private LocalDateTime votingDeadline;
