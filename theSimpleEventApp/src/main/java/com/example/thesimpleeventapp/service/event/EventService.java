@@ -22,5 +22,6 @@ public interface EventService {
 
     EventDetailsDto getEventDetails(long eventId, long userId);
 
+    Event getEventById(Long eventId);
 
 }

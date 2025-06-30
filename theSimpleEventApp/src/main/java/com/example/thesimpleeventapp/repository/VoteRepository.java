@@ -18,4 +18,6 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<User> findUsersWhoDidNotVote(@Param("eventId") Long eventId);
 
     List<Vote> findByEventId(long id);
+
+    boolean existsByUserIdAndEventId(Long userId, Long eventId);
 }

@@ -16,7 +16,6 @@ import com.example.thesimpleeventapp.exception.VoteExceptions.TimeExpiredExcepti
 import com.example.thesimpleeventapp.model.*;
 import com.example.thesimpleeventapp.repository.*;
 import com.example.thesimpleeventapp.service.notification.NotificationService;
-import com.example.thesimpleeventapp.service.notification.VotingReminderService;
 import com.example.thesimpleeventapp.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,8 @@ public class EventServiceImpl implements EventService {
     private final TimeOptionRepository timeOptionRepository;
     private final RestaurantOptionRepository restaurantOptionRepository;
     private final VoteRepository voteRepository;
-    private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final NotificationService notificationService;
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
@@ -49,16 +48,16 @@ public class EventServiceImpl implements EventService {
                             TimeOptionRepository timeOptionRepository,
                             RestaurantOptionRepository restaurantOptionRepository,
                             VoteRepository voteRepository,
-                            NotificationService notificationService,
-                            NotificationRepository notificationRepository) {
+                            NotificationRepository notificationRepository,
+                            NotificationService notificationService) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.timeOptionRepository = timeOptionRepository;
         this.restaurantOptionRepository = restaurantOptionRepository;
         this.voteRepository = voteRepository;
-        this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
+        this.notificationService = notificationService;
     }
 
     private void validateTimeOptions(TimeOptionType optionType, List<TimeOptionDto> timeOptionDtos) {
@@ -123,17 +122,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void notifyUsersAboutEvent(String title, String text, List<User> users, Event updatedEvent) {
-        for (User participant : users) {
-            notificationService.createNotification(
-                    title,
-                    text,
-                    updatedEvent,
-                    participant
-            );
-        }
-    }
-
     @Override
     public List<EventDto> getAllEvents() {
         List<Event> events = eventRepository.findAll();
@@ -142,6 +130,11 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Event getEventById(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with that ID"));
+    }
 
     @Override
     public EventDto createEvent(CreateEventDto eventDto) {
@@ -172,10 +165,12 @@ public class EventServiceImpl implements EventService {
                 .build();
 
         Event savedEvent = eventRepository.save(newEvent);
-        notifyUsersAboutEvent("Event creation",
-                "You have been invited to event: " + eventDto.getTitle(),
-                initialParticipants,
-                newEvent);
+        for (User user : initialParticipants){
+            notificationService.createNotification("Event creation",
+                    "You have been invited to event: " + eventDto.getTitle(),
+                    newEvent,
+                    user);
+        }
 
         processTimeOptions(eventDto.getTimeOptions(), newEvent);
         processRestaurantOptions(eventDto.getRestaurantOptions(), newEvent);
@@ -243,7 +238,12 @@ public class EventServiceImpl implements EventService {
         existing.getRestaurantOptions().clear();
         existing.getRestaurantOptions().addAll(mergedRests);
         Event updatedEvent = eventRepository.save(existing);
-        notifyUsersAboutEvent("Event update", "An event has been updated", users, updatedEvent);
+        for (User user : users){
+            notificationService.createNotification("Event creation",
+                    "You have been invited to event: " + eventDto.getTitle(),
+                    updatedEvent,
+                    user);
+        }
         return EventMapper.toDto(updatedEvent);
     }
 
