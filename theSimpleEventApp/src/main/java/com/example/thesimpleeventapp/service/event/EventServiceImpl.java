@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
+
+    private final ChatRepository chatRepository;
+
     private final UserService userService;
     private final UserRepository userRepository;
     private final TimeOptionRepository timeOptionRepository;
@@ -44,6 +47,7 @@ public class EventServiceImpl implements EventService {
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
+                            ChatRepository chatRepository,
                             UserService userService,
                             UserRepository userRepository,
                             TimeOptionRepository timeOptionRepository,
@@ -52,6 +56,7 @@ public class EventServiceImpl implements EventService {
                             NotificationService notificationService,
                             NotificationRepository notificationRepository) {
         this.eventRepository = eventRepository;
+        this.chatRepository = chatRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.timeOptionRepository = timeOptionRepository;
@@ -156,6 +161,7 @@ public class EventServiceImpl implements EventService {
             initialParticipants.add(0, creator);
         }
 
+
         Event newEvent = Event.builder()
                 .title(eventDto.getTitle())
                 .description(eventDto.getDescription())
@@ -166,12 +172,19 @@ public class EventServiceImpl implements EventService {
                 .timeOptions(new ArrayList<>())
                 .restaurantOptionType(eventDto.getRestaurantOptionType())
                 .restaurantOptions(new ArrayList<>())
-                .chat(null)
+                //.chat(null)   // assign saved Chat here
                 .votes(new ArrayList<>())
                 .votingDeadline(eventDto.getVotingDeadline())
                 .build();
 
         Event savedEvent = eventRepository.save(newEvent);
+        Chat chat = new Chat();
+        chat.setEvent(savedEvent);
+
+        Chat savedChat = chatRepository.save(chat);
+        //savedEvent.setChat(savedChat);
+        //eventRepository.save(savedEvent);
+
         notifyUsersAboutEvent("Event creation",
                 "You have been invited to event: " + eventDto.getTitle(),
                 initialParticipants,
