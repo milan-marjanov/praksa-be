@@ -5,9 +5,12 @@ import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
+import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.Role;
 import com.example.thesimpleeventapp.model.User;
+import com.example.thesimpleeventapp.repository.EventRepository;
 import com.example.thesimpleeventapp.repository.UserRepository;
+import com.example.thesimpleeventapp.repository.VoteRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -37,12 +40,16 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final VoteRepository voteRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder, VoteRepository voteRepository, EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.voteRepository = voteRepository;
+        this.eventRepository = eventRepository;
     }
 
     private UserRequestDto convertToDto(User user) {
@@ -172,6 +179,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
+        voteRepository.deleteByUserId(id);
+        List<Event> participantEvents = eventRepository.findAllByParticipantId(id);
+        for (Event e : participantEvents) {
+            e.getParticipants().removeIf(u -> u.getId() == id);
+        }
+        eventRepository.saveAll(participantEvents);
+
+        List<Event> createdEvents = eventRepository.findByCreatorId(id);
+        if (!createdEvents.isEmpty()) {
+            eventRepository.deleteAll(createdEvents);
+        }
         userRepository.deleteById(id);
     }
 

@@ -27,5 +27,6 @@ public interface EventService {
 
 
 
+    Event getEventById(Long eventId);
 
 }

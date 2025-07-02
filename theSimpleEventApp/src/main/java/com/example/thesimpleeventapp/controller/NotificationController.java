@@ -2,6 +2,8 @@ package com.example.thesimpleeventapp.controller;
 
 
 import com.example.thesimpleeventapp.dto.notification.NotificationDto;
+import com.example.thesimpleeventapp.model.User;
+import com.example.thesimpleeventapp.repository.UserRepository;
 import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.service.notification.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.util.Optional;
 
 
 @RestController
@@ -17,11 +19,13 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public NotificationController(NotificationService notificationService, JwtUtils jwtUtils) {
+    public NotificationController(NotificationService notificationService,UserRepository userRepository,  JwtUtils jwtUtils) {
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
         this.jwtUtils = jwtUtils;
     }
 
