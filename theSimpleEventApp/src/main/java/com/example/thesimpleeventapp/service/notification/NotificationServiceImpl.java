@@ -16,6 +16,7 @@ import com.example.thesimpleeventapp.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -33,18 +34,21 @@ public class NotificationServiceImpl implements NotificationService {
     private final EmailService emailService;
     private final EventService eventService;
     private final UserService userService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
     public NotificationServiceImpl(NotificationRepository notificationRepository,
                                    UserRepository userRepository,
                                    EmailService emailService,
                                    @Lazy EventService eventService,
-                                   UserService userService) {
+                                   UserService userService,
+                                   SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.eventService = eventService;
         this.userService = userService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
@@ -59,6 +63,10 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(newNotification);
 
         emailService.sendUserNotificationEmail(user, NotificationMapper.toDto(newNotification));
+        messagingTemplate.convertAndSend(
+                "/topic/notifications/" + user.getId(),
+                NotificationMapper.toDto(newNotification)
+        );
     }
 
     @Scheduled(fixedRate = 50000) // every hour

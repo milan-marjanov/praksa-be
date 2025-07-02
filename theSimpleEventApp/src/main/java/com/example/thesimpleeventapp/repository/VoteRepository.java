@@ -20,4 +20,6 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<Vote> findByEventId(long id);
 
     boolean existsByUserIdAndEventId(Long userId, Long eventId);
+
+    void deleteByUserId(Long userId);
 }

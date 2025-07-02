@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl implements EventService{
 
     private final EventRepository eventRepository;
     private final UserService userService;
@@ -239,8 +239,8 @@ public class EventServiceImpl implements EventService {
         existing.getRestaurantOptions().addAll(mergedRests);
         Event updatedEvent = eventRepository.save(existing);
         for (User user : users){
-            notificationService.createNotification("Event creation",
-                    "You have been invited to event: " + eventDto.getTitle(),
+            notificationService.createNotification("Event updated",
+                    "An event has been updated: " + eventDto.getTitle(),
                     updatedEvent,
                     user);
         }
@@ -416,6 +416,7 @@ public class EventServiceImpl implements EventService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .profilePictureUrl("/images/" + user.getProfilePictureUrl())
                 .build();
     }
 
