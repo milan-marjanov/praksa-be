@@ -5,14 +5,20 @@ import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
+import com.example.thesimpleeventapp.model.Chat;
 import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.Role;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.repository.EventRepository;
+import com.example.thesimpleeventapp.repository.MessageRepository;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import com.example.thesimpleeventapp.repository.VoteRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
+import com.example.thesimpleeventapp.service.event.EventService;
+import jakarta.transaction.Transactional;
+import org.aspectj.bridge.IMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -42,14 +48,19 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final VoteRepository voteRepository;
     private final EventRepository eventRepository;
+    private final EventService eventService;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder, VoteRepository voteRepository, EventRepository eventRepository) {
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder, VoteRepository voteRepository, EventRepository eventRepository, @Lazy EventService eventService, MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.voteRepository = voteRepository;
         this.eventRepository = eventRepository;
+        this.eventService = eventService;
+        this.messageRepository = messageRepository;
+
     }
 
     private UserRequestDto convertToDto(User user) {
@@ -177,20 +188,28 @@ public class UserServiceImpl implements UserService {
         return convertToPersonalDtoProfile(user);
     }
 
-    @Override
-    public void deleteUser(Long id) {
-        voteRepository.deleteByUserId(id);
-        List<Event> participantEvents = eventRepository.findAllByParticipantId(id);
-        for (Event e : participantEvents) {
-            e.getParticipants().removeIf(u -> u.getId() == id);
-        }
-        eventRepository.saveAll(participantEvents);
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Event> createdEvents = eventRepository.findByCreatorId(id);
-        if (!createdEvents.isEmpty()) {
-            eventRepository.deleteAll(createdEvents);
+        List<Event> createdEvents = eventRepository.findByCreator(user);
+        for (Event event : createdEvents) {
+            eventRepository.delete(event);
         }
-        userRepository.deleteById(id);
+        List<Event> participatingEvents = eventRepository.findByParticipantsContaining(user);
+
+        for (Event event : participatingEvents) {
+            Chat chat = event.getChat();
+            if (chat != null && chat.getMessages() != null) {
+                chat.getMessages().removeIf(message -> message.getUser().equals(user));
+            }
+            event.getParticipants().remove(user);
+        }
+
+        voteRepository.deleteByUserId(userId);
+        messageRepository.deleteAllByUser(user);
+        userRepository.delete(user);
     }
 
     @Override

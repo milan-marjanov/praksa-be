@@ -1,6 +1,7 @@
 package com.example.thesimpleeventapp.repository;
 
 import com.example.thesimpleeventapp.model.Event;
+import com.example.thesimpleeventapp.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,4 +14,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllByParticipantId(@Param("userId") Long userId);
 
     List<Event> findByCreatorId(Long creatorId);
+
+    List<Event> findByParticipantsContaining(User user);
+
+    List<Event> findByCreator(User user);
 }

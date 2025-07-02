@@ -139,6 +139,7 @@ public class EventServiceImpl implements EventService{
     public Event getEventById(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with that ID"));
+    }
 
     public EventDetailsDto getEventDetails(long id, long userId) {
         Event event = eventRepository.findById(id)
@@ -242,11 +243,6 @@ public class EventServiceImpl implements EventService{
         chat.setEvent(savedEvent);
 
         Chat savedChat = chatRepository.save(chat);
-
-        notifyUsersAboutEvent("Event creation",
-                "You have been invited to event: " + eventDto.getTitle(),
-                initialParticipants,
-                newEvent);
 
         for (User user : initialParticipants){
             notificationService.createNotification("Event creation",

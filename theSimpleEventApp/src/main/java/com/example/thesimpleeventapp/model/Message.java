@@ -29,7 +29,7 @@ public class Message {
     @OneToOne(cascade = CascadeType.ALL)
     private Message repliedToMessage;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 }

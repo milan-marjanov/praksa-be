@@ -25,6 +25,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws-notifications")
                 .setAllowedOrigins("http://localhost:5173")
                 .withSockJS();
+        registry.addEndpoint("/ws-chat")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Bean
