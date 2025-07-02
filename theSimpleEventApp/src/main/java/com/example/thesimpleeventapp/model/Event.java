@@ -47,7 +47,7 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Chat chat;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
