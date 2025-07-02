@@ -38,7 +38,7 @@ public class Event {
     @JoinColumn(name = "user_id")
     private User creator;
 
-    @ManyToMany()
+    @ManyToMany
     private List<User> participants;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)

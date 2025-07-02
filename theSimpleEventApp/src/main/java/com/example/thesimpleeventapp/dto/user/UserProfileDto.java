@@ -20,4 +20,6 @@ public class UserProfileDto {
 
     private String email;
 
+    private String profilePictureUrl;
+
 }

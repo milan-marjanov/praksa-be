@@ -45,7 +45,7 @@ public class EmailServiceImpl implements EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Event update: " + notificationDto.getTitle());
-        String eventLink = appBaseUrl + "/api/events/" + user.getId();
+        String eventLink = appBaseUrl + "/eventDetails/" + notificationDto.getEventId();
         String emailContent = "Hello " + user.getFirstName() + ",\n\n" +
                 "You have a new notification regarding your event.\n\n" +
                 "Link to event: " + eventLink;
@@ -58,7 +58,7 @@ public class EmailServiceImpl implements EmailService {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(user.getEmail());
         message.setSubject("Voting Deadline Approaching!");
-        String eventLink = appBaseUrl + "/api/events/" + user.getId();
+        String eventLink = appBaseUrl + "/eventDetails/" + eventDto.getId();
         String emailContent = "Hello " + user.getFirstName() + ",\n\n" +
                 "Reminder: The voting deadline for the event \"" + eventDto.getTitle() + "\" is approaching!\n\n" +
                 "Please cast your vote before: " + eventDto.getVotingDeadline() + "\n" +
