@@ -42,6 +42,8 @@ public class SecurityConfig {
         cfg.setAllowedOrigins(List.of("http://localhost:5173"));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        cfg.setAllowCredentials(true); // ✅ Add this
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
@@ -61,6 +63,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/event/**").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("/api/notifications/**").permitAll() //test
                         .requestMatchers("/api/events/**").hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/ws-chat").permitAll()            // test, kasnije podesiti hasAnyAuthority
+                        .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/api/chats/**").hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
