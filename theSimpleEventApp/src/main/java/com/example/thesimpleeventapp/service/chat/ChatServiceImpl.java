@@ -13,6 +13,7 @@ import com.example.thesimpleeventapp.repository.MessageRepository;
 import com.example.thesimpleeventapp.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,8 @@ public class ChatServiceImpl implements ChatService {
     private final MessageRepository messageRepository;
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
 
     @Override
     @Transactional
@@ -54,10 +57,9 @@ public class ChatServiceImpl implements ChatService {
         message.setSentAt(LocalDateTime.now());
 
         Message saved = messageRepository.save(message);
-        System.out.println("Saved message: " + saved.getText() + saved.getId());
-        /*chat.getMessages().add(saved);
-        chatRepository.save(chat);*/
-        return MessageMapper.toMessageDto(saved);
+        MessageDto messageDto = MessageMapper.toMessageDto(saved);
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + chat.getId(), messageDto);
+        return messageDto;
     }
 
     @Override

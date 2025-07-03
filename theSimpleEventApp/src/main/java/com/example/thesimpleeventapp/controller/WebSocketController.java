@@ -18,7 +18,6 @@ public class WebSocketController {
     }
 
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/chat")
     public MessageDto sendMessage(@Payload CreateMessageDto createMessageDto) {
         System.out.println("Received message text: " + createMessageDto.getText());
         return chatService.sendMessage(createMessageDto);
