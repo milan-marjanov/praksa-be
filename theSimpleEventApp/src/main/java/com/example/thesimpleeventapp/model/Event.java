@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,25 +24,36 @@ public class Event {
     @Column(nullable = false)
     private String title;
 
+    @Column(length = 1000)
     private String description;
 
-    @ManyToOne()
+    private TimeOptionType timeOptionType;
+
+    @Column(nullable = true)
+    private LocalDateTime votingDeadline;
+
+    private RestaurantOptionType restaurantOptionType;
+
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User creator;
 
-    @ManyToMany()
+    @ManyToMany
     private List<User> participants;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<TimeOption> timeOptions;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<RestaurantOption> restaurantOptions;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private Chat chat;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     private List<Vote> votes;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Notification> notifications;
 
 }

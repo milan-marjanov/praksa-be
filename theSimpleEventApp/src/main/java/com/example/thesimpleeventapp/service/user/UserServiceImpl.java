@@ -5,11 +5,20 @@ import com.example.thesimpleeventapp.dto.user.*;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
+import com.example.thesimpleeventapp.model.Chat;
+import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.Role;
 import com.example.thesimpleeventapp.model.User;
+import com.example.thesimpleeventapp.repository.EventRepository;
+import com.example.thesimpleeventapp.repository.MessageRepository;
 import com.example.thesimpleeventapp.repository.UserRepository;
+import com.example.thesimpleeventapp.repository.VoteRepository;
 import com.example.thesimpleeventapp.service.email.EmailService;
+import com.example.thesimpleeventapp.service.event.EventService;
+import jakarta.transaction.Transactional;
+import org.aspectj.bridge.IMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
@@ -33,19 +42,25 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final PasswordEncoder passwordEncoder;
-
-    private final UserRepository userRepository;
-
-    private final EmailService emailService;
-
     private static final String UPLOAD_DIR = "images/";
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final VoteRepository voteRepository;
+    private final EventRepository eventRepository;
+    private final EventService eventService;
+    private final MessageRepository messageRepository;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, EmailService emailService, PasswordEncoder passwordEncoder, VoteRepository voteRepository, EventRepository eventRepository, @Lazy EventService eventService, MessageRepository messageRepository) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.voteRepository = voteRepository;
+        this.eventRepository = eventRepository;
+        this.eventService = eventService;
+        this.messageRepository = messageRepository;
+
     }
 
     private UserRequestDto convertToDto(User user) {
@@ -127,6 +142,7 @@ public class UserServiceImpl implements UserService {
 
     private UserProfileDto convertToPersonalDtoProfile(User user) {
         return UserProfileDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
@@ -135,6 +151,7 @@ public class UserServiceImpl implements UserService {
 
     private UserPublicProfileDto convertToPublicProfileDto(User user) {
         return UserPublicProfileDto.builder()
+                .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .profilePictureUrl(user.getProfilePictureUrl())
@@ -171,9 +188,28 @@ public class UserServiceImpl implements UserService {
         return convertToPersonalDtoProfile(user);
     }
 
-    @Override
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Event> createdEvents = eventRepository.findByCreator(user);
+        for (Event event : createdEvents) {
+            eventRepository.delete(event);
+        }
+        List<Event> participatingEvents = eventRepository.findByParticipantsContaining(user);
+
+        for (Event event : participatingEvents) {
+            Chat chat = event.getChat();
+            if (chat != null && chat.getMessages() != null) {
+                chat.getMessages().removeIf(message -> message.getUser().equals(user));
+            }
+            event.getParticipants().remove(user);
+        }
+
+        voteRepository.deleteByUserId(userId);
+        messageRepository.deleteAllByUser(user);
+        userRepository.delete(user);
     }
 
     @Override
@@ -202,7 +238,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Error: " + e.getMessage(), e);
 
         }
-        
+
     }
 
     @Override
@@ -213,18 +249,12 @@ public class UserServiceImpl implements UserService {
 
         String filename = user.getProfilePictureUrl();
         if (filename == null || filename.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
         }
-
-
         Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
-
-
         Resource resource = new UrlResource(filePath.toUri());
 
         if (resource.exists() && resource.isReadable()) {
-            System.out.println(resource.exists());
-            System.out.println(resource.isReadable());
             MediaType contentType = MediaTypeFactory.getMediaType(resource)
                     .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
@@ -232,18 +262,15 @@ public class UserServiceImpl implements UserService {
                     .contentType(contentType)
                     .body(resource);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok().build();
         }
     }
 
     @Override
     public void deleteImage(Long id) {
-
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         user.setProfilePictureUrl(null);
         userRepository.save(user);
-
     }
-
 }

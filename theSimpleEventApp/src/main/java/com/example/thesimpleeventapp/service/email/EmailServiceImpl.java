@@ -1,6 +1,10 @@
 package com.example.thesimpleeventapp.service.email;
 
+import com.example.thesimpleeventapp.dto.event.EventDto;
+import com.example.thesimpleeventapp.dto.notification.NotificationDto;
+import com.example.thesimpleeventapp.model.Event;
 import com.example.thesimpleeventapp.model.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,10 +13,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailServiceImpl implements EmailService {
     private final JavaMailSender mailSender;
+    private String appBaseUrl;
+
 
     @Autowired
     public EmailServiceImpl(JavaMailSender mailSender) {
         this.mailSender = mailSender;
+        Dotenv dotenv = Dotenv.load();
+        this.appBaseUrl = dotenv.get("APP_BASE_URL");
+
     }
 
     @Override
@@ -28,6 +37,34 @@ public class EmailServiceImpl implements EmailService {
                 "Please login and change your password.\n\n" +
                 "Regards,\nYour App Team");
 
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendUserNotificationEmail(User user, NotificationDto notificationDto) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Event update: " + notificationDto.getTitle());
+        String eventLink = appBaseUrl + "/eventDetails/" + notificationDto.getEventId();
+        String emailContent = "Hello " + user.getFirstName() + ",\n\n" +
+                "You have a new notification regarding your event.\n\n" +
+                "Link to event: " + eventLink;
+        message.setText(emailContent);
+        mailSender.send(message);
+    }
+
+    @Override
+    public void sendVotingReminderEmail(User user, EventDto eventDto) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Voting Deadline Approaching!");
+        String eventLink = appBaseUrl + "/eventDetails/" + eventDto.getId();
+        String emailContent = "Hello " + user.getFirstName() + ",\n\n" +
+                "Reminder: The voting deadline for the event \"" + eventDto.getTitle() + "\" is approaching!\n\n" +
+                "Please cast your vote before: " + eventDto.getVotingDeadline() + "\n" +
+                "Event link: " + eventLink + "\n\n" +
+                "Thank you,\nYour Event App Team";
+        message.setText(emailContent);
         mailSender.send(message);
     }
 }

@@ -10,18 +10,15 @@ public class TimeOptionMapper {
         dto.setMaxCapacity(timeOption.getMaxCapacity());
         dto.setStartTime(timeOption.getStartTime());
         dto.setEndTime(timeOption.getEndTime());
-        dto.setDeadline(timeOption.getDeadline());
         dto.setCreatedAt(timeOption.getCreatedAt());
         return dto;
     }
 
     public static TimeOption toEntity(TimeOptionDto dto) {
         TimeOption timeOption = new TimeOption();
-        timeOption.setId(dto.getId());
         timeOption.setMaxCapacity(dto.getMaxCapacity());
         timeOption.setStartTime(dto.getStartTime());
         timeOption.setEndTime(dto.getEndTime());
-        timeOption.setDeadline(dto.getDeadline());
         timeOption.setCreatedAt(dto.getCreatedAt());
         return timeOption;
     }

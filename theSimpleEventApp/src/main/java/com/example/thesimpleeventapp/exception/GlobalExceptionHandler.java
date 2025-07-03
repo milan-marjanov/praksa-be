@@ -2,6 +2,7 @@ package com.example.thesimpleeventapp.exception;
 
 import com.example.thesimpleeventapp.exception.EventExceptions.EventNotFoundException;
 import com.example.thesimpleeventapp.exception.EventExceptions.InvalidEventDataException;
+import com.example.thesimpleeventapp.exception.NotificationException.NotificationNotFoundException;
 import com.example.thesimpleeventapp.exception.UserExceptions.EmailAlreadyInUseException;
 import com.example.thesimpleeventapp.exception.UserExceptions.PasswordMissmatchException;
 import com.example.thesimpleeventapp.exception.UserExceptions.UserNotFoundException;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import java.time.LocalDateTime;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -58,12 +61,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventNotFoundException.class)
     public ResponseEntity<ErrorResponse> eventNotFoundException(EventNotFoundException ex) {
-        return buildErrorResponse(ex, HttpStatus.NOT_FOUND);
+        return buildErrorResponse(ex, HttpStatus.OK);
     }
 
     @ExceptionHandler(InvalidEventDataException.class)
     public ResponseEntity<ErrorResponse> eventNotFoundException(InvalidEventDataException ex) {
         return buildErrorResponse(ex, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    public ResponseEntity<ErrorResponse> notificationNotFoundException(NotificationNotFoundException ex){
+        return buildErrorResponse(ex, HttpStatus.OK);
     }
 
 }

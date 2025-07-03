@@ -30,16 +30,13 @@ public class TimeOption {
     private LocalDateTime endTime;
 
     @Column(nullable = false)
-    private LocalDateTime deadline;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "event_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "event_id")
     private Event event;
 
-    @OneToMany(mappedBy = "timeOption", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "timeOption",orphanRemoval = true,cascade = CascadeType.ALL)
     private List<Vote> votes;
 
 }

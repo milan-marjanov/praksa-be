@@ -1,18 +1,15 @@
 package com.example.thesimpleeventapp.controller;
 
 import com.example.thesimpleeventapp.dto.user.*;
-import com.example.thesimpleeventapp.dto.user.CreateUserDto;
 import com.example.thesimpleeventapp.model.User;
 import com.example.thesimpleeventapp.security.JwtUtils;
 import com.example.thesimpleeventapp.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -31,11 +28,9 @@ public class UserController {
         this.jwtUtils = jwtUtils;
     }
 
-    @GetMapping("/user/image")
-    public ResponseEntity<Resource> getImage(@RequestHeader("Authorization") String authHeader) throws MalformedURLException {
-        String token = authHeader.replace("Bearer ", "");
-        Long userId = jwtUtils.extractUserId(token);
-        return userService.loadImage(userId);
+    @GetMapping("/user/image/{id}")
+    public ResponseEntity<Resource> getImage(@PathVariable Long id) throws MalformedURLException {
+        return userService.loadImage(id);
     }
 
     @GetMapping("user/profile")
@@ -53,7 +48,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id){
+    public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
@@ -96,7 +91,7 @@ public class UserController {
     }
 
     @DeleteMapping("/admin/{id}")
-    public void deleteUser(@PathVariable Long id){
+    public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 

@@ -14,22 +14,23 @@ public class Vote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="id",nullable = false)
+    @Column(name = "id", nullable = false)
     private long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "event_id",nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "time_option_id",nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "time_option_id")
     private TimeOption timeOption;
 
     @ManyToOne
-    @JoinColumn(name = "restaurant_option_id",nullable = false)
+    @JoinColumn(name = "restaurant_option_id")
     private RestaurantOption restaurantOption;
 
 

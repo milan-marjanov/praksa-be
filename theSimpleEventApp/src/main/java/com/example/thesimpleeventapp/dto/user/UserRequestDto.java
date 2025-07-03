@@ -24,6 +24,4 @@ public class UserRequestDto {
     private String profilePicture;
 
     private Role role;
-
-
 }

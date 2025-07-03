@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
 <<<<<<< HEAD
+<<<<<<< HEAD
   <component name="ChangeListManager">
     <list default="true" id="b7276a21-84b7-4f37-a440-2165d4ff8413" name="Changes" comment="" />
 =======
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6835b39d-f038-4295-a4b3-e0db2df90c9e" name="Changes" comment="" />
+<<<<<<< HEAD
 >>>>>>> 89dd7e2cbbeaca306193da97417ebd2c1c2e91ae
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <component name="Git.Settings">
 =======
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -33,29 +42,39 @@
         <entry key="$PROJECT_DIR$" value="development" />
       </map>
     </option>
+<<<<<<< HEAD
 >>>>>>> 89dd7e2cbbeaca306193da97417ebd2c1c2e91ae
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
 <<<<<<< HEAD
+<<<<<<< HEAD
   &quot;associatedIndex&quot;: 1
 }</component>
   <component name="ProjectId" id="2yMKFELyOhTuIjdi7vs8Es1SSuv" />
 =======
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2y8Gg3GG3ellnSuYfr3HgUm1rZv" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
   </component>
+<<<<<<< HEAD
 >>>>>>> 89dd7e2cbbeaca306193da97417ebd2c1c2e91ae
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+<<<<<<< HEAD
 <<<<<<< HEAD
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -95,6 +114,8 @@
     <option name="version" value="3" />
   </component>
 =======
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.TheSimpleEventAppApplication.executor": "Run",
     "Application.Unnamed.executor": "Run",
@@ -146,5 +167,8 @@
     </task>
     <servers />
   </component>
+<<<<<<< HEAD
 >>>>>>> 89dd7e2cbbeaca306193da97417ebd2c1c2e91ae
+=======
+>>>>>>> ca5530f8a95ef668953c2e9d823c78f3b1185a2a
 </project>
